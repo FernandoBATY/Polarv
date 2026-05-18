@@ -7,12 +7,10 @@ var target_position: Vector2
 
 func _ready():
 	target_position = global_position
-	print("PLAYER LISTO")
 
 func _input(event):
 	if event is InputEventMouseButton and event.pressed:
 		target_position = get_global_mouse_position()
-		print("CLICK DETECTADO -> ", target_position)
 
 func _physics_process(delta):
 	var direction = target_position - global_position
