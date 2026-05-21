@@ -1,9 +1,10 @@
-[gd_scene format=3 uid="uid://eqo1pldtlih5"]
+[gd_scene format=4 uid="uid://eqo1pldtlih5"]
 
-[ext_resource type="Script" uid="uid://dxptn01pihrht" path="res://scripts/Game.gd" id="1_3iwug"]
+[ext_resource type="Script" uid="uid://dxptn01pihrht" path="res://scripts/world/Game.gd" id="1_3iwug"]
 [ext_resource type="PackedScene" uid="uid://cke8ty7gp63tf" path="res://scenes/player/player.tscn" id="1_w44h4"]
 [ext_resource type="PackedScene" uid="uid://cptpai1oh5umm" path="res://scenes/furniture/furniture_root.tscn" id="2_hqfqh"]
 [ext_resource type="Texture2D" uid="uid://dg7mhpr8oh7cg" path="res://assets/tiles/grass.png" id="2_r5nxa"]
+[ext_resource type="Texture2D" uid="uid://ov4l6orujhms" path="res://assets/pasto.png" id="5_h30v7"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_h30v7"]
 texture = ExtResource("2_r5nxa")
@@ -20,8 +21,14 @@ sources/0 = SubResource("TileSetAtlasSource_h30v7")
 script = ExtResource("1_3iwug")
 
 [node name="GroundLayer" type="TileMapLayer" parent="." unique_id=514636170]
+tile_map_data = PackedByteArray("AAAGAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAGAAEAAAAAAAAAAAAHAAEAAAAAAAAAAAAGAAIAAAAAAAAAAAAHAAIAAAAAAAAAAAAIAAEAAAAAAAAAAAAIAAAAAAAAAAAAAAAIAAIAAAAAAAAAAAAJAAAAAAAAAAAAAAAJAAEAAAAAAAAAAAAJAAIAAAAAAAAAAAAGAAMAAAAAAAAAAAAHAAMAAAAAAAAAAAAIAAMAAAAAAAAAAAAKAAMAAAAAAAAAAAAJAAMAAAAAAAAAAAAKAAIAAAAAAAAAAAAKAAEAAAAAAAAAAAAKAAAAAAAAAAAAAAAGAAQAAAAAAAAAAAAHAAQAAAAAAAAAAAAIAAQAAAAAAAAAAAAJAAQAAAAAAAAAAAAKAAQAAAAAAAAAAAALAAQAAAAAAAAAAAALAAMAAAAAAAAAAAALAAIAAAAAAAAAAAALAAEAAAAAAAAAAAALAAAAAAAAAAAAAAALAP//AAAAAAAAAAAMAAEAAAAAAAAAAAAMAAIAAAAAAAAAAAALAAUAAAAAAAAAAAAKAAUAAAAAAAAAAAAJAAUAAAAAAAAAAAAIAAUAAAAAAAAAAAAHAAUAAAAAAAAAAAAGAAUAAAAAAAAAAAAMAAUAAAAAAAAAAAAMAAQAAAAAAAAAAAAMAAMAAAAAAAAAAAAMAAAAAAAAAAAAAAAMAP//AAAAAAAAAAAKAP//AAAAAAAAAAAJAP//AAAAAAAAAAAIAP//AAAAAAAAAAAHAP//AAAAAAAAAAAGAP//AAAAAAAAAAA=")
 tile_set = SubResource("TileSet_hqfqh")
 
 [node name="Player" parent="." unique_id=2139512567 instance=ExtResource("1_w44h4")]
+position = Vector2(-1, 5)
 
 [node name="FurnitureRoot" parent="." unique_id=719879576 instance=ExtResource("2_hqfqh")]
+
+[node name="GridDebug" type="Sprite2D" parent="." unique_id=513186313]
+texture = ExtResource("5_h30v7")
+centered = false
