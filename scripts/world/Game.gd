@@ -1,12 +1,13 @@
 extends Node2D
+
 var occupied_cells: Dictionary = {}
 var current_preview_valid: bool = true
+var decoration_mode: bool = true
+
 @onready var player: CharacterBody2D = $Player
 @onready var grid_debug: Sprite2D = $GridDebug
 @onready var furniture_root: Node2D = $FurnitureRoot
 @onready var furniture_preview: Node2D = $FurniturePreview
-
-var last_cell: Vector2i = Vector2i(999999, 999999)
 
 const FURNITURE_ITEM_SCENE: PackedScene = preload("res://scenes/furniture/FurnitureItem.tscn")
 
@@ -18,7 +19,12 @@ func _process(_delta: float) -> void:
 		player.z_index = int(player.global_position.y)
 
 	update_grid_debug()
-	update_furniture_preview()
+
+	if decoration_mode:
+		update_furniture_preview()
+		furniture_preview.visible = true
+	else:
+		furniture_preview.visible = false
 
 func update_grid_debug() -> void:
 	var cell: Vector2i = IsoGrid.world_to_grid(player.global_position)
@@ -46,9 +52,13 @@ func update_furniture_preview() -> void:
 		preview_sprite.modulate = Color(1, 0, 0, 0.5)
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton:
-		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+	if event is InputEventKey:
+		if event.pressed and event.keycode == KEY_D:
+			decoration_mode = !decoration_mode
+			print("DECORATION MODE: ", decoration_mode)
 
+	if event is InputEventMouseButton:
+		if decoration_mode and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			var mouse_position := get_global_mouse_position()
 			var cell := IsoGrid.world_to_grid(mouse_position)
 
