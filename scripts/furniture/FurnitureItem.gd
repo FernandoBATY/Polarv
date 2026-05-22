@@ -11,4 +11,31 @@ func setup(new_item_id: String, new_grid_position: Vector2i, new_rotation: int =
 	rotation_degrees_data = new_rotation
 
 	global_position = IsoGrid.grid_to_world(grid_position)
+
+	apply_visual_direction()
+
 	z_index = int(global_position.y)
+
+
+func apply_visual_direction() -> void:
+	var sprite := $Sprite2D as Sprite2D
+
+	sprite.flip_h = false
+
+	match rotation_degrees_data:
+		0:
+			sprite.flip_h = false
+		90:
+			sprite.flip_h = false
+		180:
+			sprite.flip_h = false
+		270:
+			sprite.flip_h = true
+
+func to_save_data() -> Dictionary:
+	return {
+		"id": item_id,
+		"x": grid_position.x,
+		"y": grid_position.y,
+		"rotation": rotation_degrees_data
+	}
