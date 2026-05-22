@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://8o5rr5ykbryb"]
+
+[ext_resource type="Script" uid="uid://co0b74tnt24mh" path="res://scripts/furniture/FurnitureItem.gd" id="1_h3la8"]
+[ext_resource type="Texture2D" uid="uid://c64g1pr5t1746" path="res://assets/chair_placeholder.png" id="2_m5m2e"]
+
+[node name="FurnitureItem" type="Node2D" unique_id=1316443923]
+script = ExtResource("1_h3la8")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1632059547]
+texture = ExtResource("2_m5m2e")

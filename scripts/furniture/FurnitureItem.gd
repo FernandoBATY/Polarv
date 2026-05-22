@@ -1,0 +1,14 @@
+extends Node2D
+
+@export var item_id: String = "chair_01"
+@export var grid_position: Vector2i = Vector2i.ZERO
+@export var grid_size: Vector2i = Vector2i(1, 1)
+@export var rotation_degrees_data: int = 0
+
+func setup(new_item_id: String, new_grid_position: Vector2i, new_rotation: int = 0) -> void:
+	item_id = new_item_id
+	grid_position = new_grid_position
+	rotation_degrees_data = new_rotation
+
+	global_position = IsoGrid.grid_to_world(grid_position)
+	z_index = int(global_position.y)
