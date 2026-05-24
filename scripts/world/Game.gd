@@ -1,22 +1,31 @@
 extends Node2D
+
 const FurnitureDatabase = preload("res://scripts/FurnitureDatabase.gd")
+
+const FURNITURE_ITEM_SCENE: PackedScene = preload("res://scenes/furniture/FurnitureItem.tscn")
+const SAVE_PATH: String = "user://decorations_save.json"
+
+const OCCUPANCY_LAYERS := [
+	"floor",
+	"furniture",
+	"surface",
+	"wall",
+	"ceiling"
+]
 
 var occupied_cells: Dictionary = {}
 var current_preview_valid: bool = true
 var decoration_mode: bool = true
 var current_rotation: int = 0
 
-var current_furniture_id: String = "chair_01"
-var current_furniture_size: Vector2i = Vector2i(1, 1)
+var current_furniture_id: String = "chair_2x2"
+var current_furniture_size: Vector2i = Vector2i(2, 2)
 
 @onready var player: CharacterBody2D = $Player
 @onready var grid_debug: Sprite2D = $GridDebug
 @onready var furniture_root: Node2D = $FurnitureRoot
 @onready var furniture_preview: Node2D = $FurniturePreview
 @onready var preview_cells: Node2D = $FurniturePreview/PreviewCells
-
-const FURNITURE_ITEM_SCENE: PackedScene = preload("res://scenes/furniture/FurnitureItem.tscn")
-const SAVE_PATH: String = "user://decorations_save.json"
 
 
 func _ready() -> void:
@@ -55,7 +64,11 @@ func update_furniture_preview() -> void:
 
 	var rotated_size: Vector2i = get_rotated_size(current_furniture_size, current_rotation)
 
-	current_preview_valid = can_place_furniture(cell, rotated_size)
+	current_preview_valid = can_place_furniture(
+		current_furniture_id,
+		cell,
+		rotated_size
+	)
 
 	update_preview_cells(cell, rotated_size, current_preview_valid)
 
@@ -107,25 +120,31 @@ func _unhandled_input(event: InputEvent) -> void:
 			print("DIRECTION: ", current_rotation)
 
 		if event.pressed and event.keycode == KEY_1:
-			select_furniture("chair_01")
+			select_furniture("chair_2x2")
 
 		if event.pressed and event.keycode == KEY_2:
-			select_furniture("table_2x1")
+			select_furniture("table_4x2")
 
 		if event.pressed and event.keycode == KEY_3:
-			select_furniture("table_2x2")
+			select_furniture("table_4x4")
 
 		if event.pressed and event.keycode == KEY_4:
-			select_furniture("bed_3x2")
+			select_furniture("bed_6x4")
 
 		if event.pressed and event.keycode == KEY_5:
-			select_furniture("fountain_3x3")
+			select_furniture("fountain_6x6")
 
 		if event.pressed and event.keycode == KEY_6:
-			select_furniture("fridge_1x2")
+			select_furniture("fridge_2x4")
 
 		if event.pressed and event.keycode == KEY_7:
-			select_furniture("painting_1x1")
+			select_furniture("painting_2x2")
+
+		if event.pressed and event.keycode == KEY_8:
+			select_furniture("flower_vase_2x2")
+
+		if event.pressed and event.keycode == KEY_9:
+			select_furniture("rug_4x4")
 
 		if event.pressed and event.keycode == KEY_P:
 			var data := get_decorations_save_data()
@@ -173,42 +192,104 @@ func get_cells_for_furniture(origin: Vector2i, size: Vector2i) -> Array[Vector2i
 	return cells
 
 
-func can_place_furniture(origin: Vector2i, size: Vector2i) -> bool:
+func ensure_cell_exists(cell: Vector2i) -> void:
+	if not occupied_cells.has(cell):
+		occupied_cells[cell] = {}
+
+	for layer: String in OCCUPANCY_LAYERS:
+		if not occupied_cells[cell].has(layer):
+			occupied_cells[cell][layer] = null
+
+
+func get_furniture_layer(item_id: String) -> String:
+	var data: Dictionary = FurnitureDatabase.get_item(item_id)
+
+	if data.has("layer"):
+		return str(data["layer"])
+
+	return "furniture"
+
+
+func cell_has_surface_provider(cell: Vector2i) -> bool:
+	ensure_cell_exists(cell)
+
+	var base_furniture = occupied_cells[cell]["furniture"]
+
+	if base_furniture == null:
+		return false
+
+	return FurnitureDatabase.provides_surface(base_furniture.item_id)
+
+
+func can_place_surface_item(origin: Vector2i, size: Vector2i) -> bool:
 	var cells: Array[Vector2i] = get_cells_for_furniture(origin, size)
 
 	for cell in cells:
-		if occupied_cells.has(cell):
+		ensure_cell_exists(cell)
+
+		if occupied_cells[cell]["surface"] != null:
+			return false
+
+		if not cell_has_surface_provider(cell):
+			return false
+
+	return true
+
+
+func can_place_furniture(item_id: String, origin: Vector2i, size: Vector2i) -> bool:
+	var layer: String = get_furniture_layer(item_id)
+
+	if layer == "surface":
+		return can_place_surface_item(origin, size)
+
+	var cells: Array[Vector2i] = get_cells_for_furniture(origin, size)
+
+	for cell in cells:
+		ensure_cell_exists(cell)
+
+		if occupied_cells[cell][layer] != null:
 			return false
 
 	return true
 
 
 func occupy_furniture_cells(furniture: Node) -> void:
+	var layer: String = get_furniture_layer(furniture.item_id)
+
 	var cells: Array[Vector2i] = get_cells_for_furniture(
 		furniture.grid_position,
 		furniture.grid_size
 	)
 
 	for cell in cells:
-		occupied_cells[cell] = furniture
+		ensure_cell_exists(cell)
+		occupied_cells[cell][layer] = furniture
 
 
 func free_furniture_cells(furniture: Node) -> void:
+	var layer: String = get_furniture_layer(furniture.item_id)
+
 	var cells: Array[Vector2i] = get_cells_for_furniture(
 		furniture.grid_position,
 		furniture.grid_size
 	)
 
 	for cell in cells:
-		if occupied_cells.has(cell) and occupied_cells[cell] == furniture:
-			occupied_cells.erase(cell)
+		ensure_cell_exists(cell)
+
+		if occupied_cells[cell][layer] == furniture:
+			occupied_cells[cell][layer] = null
 
 
 func spawn_test_furniture(cell: Vector2i) -> void:
 	var rotated_size: Vector2i = get_rotated_size(current_furniture_size, current_rotation)
 
-	if not can_place_furniture(cell, rotated_size):
-		print("ESPACIO OCUPADO: ", cell, " SIZE: ", rotated_size)
+	if not can_place_furniture(
+		current_furniture_id,
+		cell,
+		rotated_size
+	):
+		print("NO SE PUEDE COLOCAR: ", current_furniture_id, " CELL: ", cell, " SIZE: ", rotated_size)
 		return
 
 	var furniture := FURNITURE_ITEM_SCENE.instantiate()
@@ -286,6 +367,12 @@ func load_decorations(data: Array) -> void:
 		child.queue_free()
 
 	for decoration_data in data:
+		var item_id: String = str(decoration_data["id"])
+
+		if not FurnitureDatabase.has_item(item_id):
+			print("NO SE PUDO CARGAR, ITEM NO EXISTE: ", item_id)
+			continue
+
 		var cell := Vector2i(
 			int(decoration_data["x"]),
 			int(decoration_data["y"])
@@ -293,23 +380,25 @@ func load_decorations(data: Array) -> void:
 
 		var rotation_data: int = int(decoration_data.get("rotation", 0))
 
-		var size := Vector2i(
-			int(decoration_data.get("size_x", 1)),
-			int(decoration_data.get("size_y", 1))
-		)
+		var database_size: Vector2i = FurnitureDatabase.get_size(item_id)
+		var rotated_size: Vector2i = get_rotated_size(database_size, rotation_data)
 
-		if not can_place_furniture(cell, size):
-			print("NO SE PUDO CARGAR, ESPACIO OCUPADO: ", decoration_data)
+		if not can_place_furniture(
+			item_id,
+			cell,
+			rotated_size
+		):
+			print("NO SE PUDO CARGAR: ", decoration_data)
 			continue
 
 		var furniture := FURNITURE_ITEM_SCENE.instantiate()
 		furniture_root.add_child(furniture)
 
 		furniture.setup(
-			str(decoration_data["id"]),
+			item_id,
 			cell,
 			rotation_data,
-			size
+			rotated_size
 		)
 
 		occupy_furniture_cells(furniture)
@@ -318,43 +407,59 @@ func load_decorations(data: Array) -> void:
 func get_fake_save_data() -> Array:
 	return [
 		{
-			"id": "chair_01",
-			"x": 5,
-			"y": 2,
-			"size_x": 1,
-			"size_y": 1,
+			"id": "rug_4x4",
+			"x": 4,
+			"y": 1,
+			"size_x": 4,
+			"size_y": 4,
 			"rotation": 0
 		},
 		{
-			"id": "table_2x1",
-			"x": 8,
-			"y": 3,
-			"size_x": 2,
-			"size_y": 1,
-			"rotation": 270
-		},
-		{
-			"id": "table_2x2",
-			"x": 10,
-			"y": 5,
+			"id": "chair_2x2",
+			"x": 5,
+			"y": 2,
 			"size_x": 2,
 			"size_y": 2,
+			"rotation": 0
+		},
+		{
+			"id": "table_4x2",
+			"x": 9,
+			"y": 2,
+			"size_x": 4,
+			"size_y": 2,
+			"rotation": 0
+		},
+		{
+			"id": "flower_vase_2x2",
+			"x": 10,
+			"y": 2,
+			"size_x": 2,
+			"size_y": 2,
+			"rotation": 0
+		},
+		{
+			"id": "table_4x4",
+			"x": 14,
+			"y": 4,
+			"size_x": 4,
+			"size_y": 4,
 			"rotation": 180
 		},
 		{
-			"id": "bed_3x2",
+			"id": "bed_6x4",
 			"x": 4,
-			"y": 7,
-			"size_x": 3,
-			"size_y": 2,
+			"y": 8,
+			"size_x": 6,
+			"size_y": 4,
 			"rotation": 0
 		},
 		{
-			"id": "fountain_3x3",
-			"x": 12,
-			"y": 8,
-			"size_x": 3,
-			"size_y": 3,
+			"id": "fountain_6x6",
+			"x": 13,
+			"y": 10,
+			"size_x": 6,
+			"size_y": 6,
 			"rotation": 0
 		}
 	]

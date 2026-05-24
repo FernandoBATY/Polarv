@@ -38,6 +38,8 @@ centered = false
 
 [node name="Sprite2D" type="Sprite2D" parent="FurniturePreview" unique_id=621582615]
 modulate = Color(1, 1, 1, 0.5019608)
+position = Vector2(-5.999996, 0)
+scale = Vector2(0.81250006, 1)
 texture = ExtResource("6_sarsd")
 
 [node name="PreviewCells" type="Node2D" parent="FurniturePreview" unique_id=478443086]

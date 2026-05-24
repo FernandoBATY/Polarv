@@ -2,7 +2,7 @@ extends Node2D
 
 @export var item_id: String = "chair_01"
 @export var grid_position: Vector2i = Vector2i.ZERO
-@export var grid_size: Vector2i = Vector2i(1, 1)
+@export var grid_size: Vector2i = Vector2i(2, 2)
 @export var rotation_degrees_data: int = 0
 
 @export var front_texture: Texture2D
@@ -13,7 +13,7 @@ func setup(
 	new_item_id: String,
 	new_grid_position: Vector2i,
 	new_rotation: int = 0,
-	new_grid_size: Vector2i = Vector2i(1, 1)
+	new_grid_size: Vector2i = Vector2i(2, 2)
 ) -> void:
 	item_id = new_item_id
 	grid_position = new_grid_position
@@ -34,25 +34,21 @@ func apply_visual_direction() -> void:
 
 	match rotation_degrees_data:
 		0:
-			# frente derecha
 			if front_texture:
 				sprite.texture = front_texture
 			sprite.flip_h = false
 
 		90:
-			# espalda derecha
 			if back_texture:
 				sprite.texture = back_texture
 			sprite.flip_h = false
 
 		180:
-			# espalda izquierda
 			if back_texture:
 				sprite.texture = back_texture
 			sprite.flip_h = true
 
 		270:
-			# frente izquierda
 			if front_texture:
 				sprite.texture = front_texture
 			sprite.flip_h = true
