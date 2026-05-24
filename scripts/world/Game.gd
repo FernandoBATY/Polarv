@@ -21,6 +21,14 @@ var current_rotation: int = 0
 var current_furniture_id: String = "chair_2x2"
 var current_furniture_size: Vector2i = Vector2i(2, 2)
 
+var selected_furniture: Node = null
+var is_moving_selected: bool = false
+var move_original_position: Vector2i = Vector2i.ZERO
+var move_original_rotation: int = 0
+var move_original_size: Vector2i = Vector2i(2, 2)
+
+var selected_cells_root: Node2D
+
 @onready var player: CharacterBody2D = $Player
 @onready var grid_debug: Sprite2D = $GridDebug
 @onready var furniture_root: Node2D = $FurnitureRoot
@@ -29,8 +37,13 @@ var current_furniture_size: Vector2i = Vector2i(2, 2)
 
 
 func _ready() -> void:
+	selected_cells_root = Node2D.new()
+	selected_cells_root.name = "SelectedCells"
+	add_child(selected_cells_root)
+
 	load_decorations_from_file()
 	select_furniture(current_furniture_id)
+	set_decoration_mode(decoration_mode)
 
 
 func _process(_delta: float) -> void:
@@ -41,9 +54,31 @@ func _process(_delta: float) -> void:
 
 	if decoration_mode:
 		update_furniture_preview()
+		update_selected_cells_display()
 		furniture_preview.visible = true
+		selected_cells_root.visible = true
 	else:
 		furniture_preview.visible = false
+		selected_cells_root.visible = false
+
+
+func set_decoration_mode(value: bool) -> void:
+	decoration_mode = value
+
+	if player and player.has_method("set_movement_enabled"):
+		player.set_movement_enabled(not decoration_mode)
+
+	if not decoration_mode:
+		if is_moving_selected:
+			cancel_selection_or_move()
+
+		if selected_furniture != null:
+			selected_furniture.set_selected(false)
+			selected_furniture = null
+
+		clear_selected_cells()
+
+	print("DECORATION MODE: ", decoration_mode)
 
 
 func update_grid_debug() -> void:
@@ -62,10 +97,19 @@ func update_furniture_preview() -> void:
 	furniture_preview.global_position = snapped_position
 	furniture_preview.z_index = int(snapped_position.y)
 
-	var rotated_size: Vector2i = get_rotated_size(current_furniture_size, current_rotation)
+	var preview_id: String = current_furniture_id
+	var preview_size: Vector2i = current_furniture_size
+	var preview_rotation: int = current_rotation
+
+	if is_moving_selected and selected_furniture != null:
+		preview_id = selected_furniture.item_id
+		preview_size = FurnitureDatabase.get_size(preview_id)
+		preview_rotation = selected_furniture.rotation_degrees_data
+
+	var rotated_size: Vector2i = get_rotated_size(preview_size, preview_rotation)
 
 	current_preview_valid = can_place_furniture(
-		current_furniture_id,
+		preview_id,
 		cell,
 		rotated_size
 	)
@@ -73,7 +117,7 @@ func update_furniture_preview() -> void:
 	update_preview_cells(cell, rotated_size, current_preview_valid)
 
 	var preview_sprite := furniture_preview.get_node("Sprite2D") as Sprite2D
-	preview_sprite.flip_h = current_rotation == 180 or current_rotation == 270
+	preview_sprite.flip_h = preview_rotation == 180 or preview_rotation == 270
 
 	if current_preview_valid:
 		preview_sprite.modulate = Color(0, 1, 0, 0.5)
@@ -105,61 +149,119 @@ func update_preview_cells(origin: Vector2i, size: Vector2i, is_valid: bool) -> v
 		preview_cells.add_child(cell_sprite)
 
 
+func update_selected_cells_display() -> void:
+	clear_selected_cells()
+
+	if selected_furniture == null:
+		return
+
+	var origin: Vector2i = selected_furniture.grid_position
+	var size: Vector2i = selected_furniture.grid_size
+
+	if is_moving_selected:
+		origin = IsoGrid.world_to_grid(get_global_mouse_position())
+		var base_size: Vector2i = FurnitureDatabase.get_size(selected_furniture.item_id)
+		size = get_rotated_size(base_size, selected_furniture.rotation_degrees_data)
+
+	var cells: Array[Vector2i] = get_cells_for_furniture(origin, size)
+
+	for cell in cells:
+		var cell_sprite := Sprite2D.new()
+		cell_sprite.texture = grid_debug.texture
+		cell_sprite.centered = true
+		cell_sprite.global_position = IsoGrid.grid_to_world(cell)
+		cell_sprite.z_index = int(cell_sprite.global_position.y) - 5
+		cell_sprite.modulate = Color(1.0, 0.5, 0.0, 0.55)
+
+		selected_cells_root.add_child(cell_sprite)
+
+
+func clear_selected_cells() -> void:
+	if selected_cells_root == null:
+		return
+
+	for child in selected_cells_root.get_children():
+		child.queue_free()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey:
 		if event.pressed and event.keycode == KEY_D:
-			decoration_mode = !decoration_mode
-			print("DECORATION MODE: ", decoration_mode)
+			set_decoration_mode(not decoration_mode)
 
-		if event.pressed and event.keycode == KEY_R:
-			current_rotation += 90
-
-			if current_rotation >= 360:
-				current_rotation = 0
+		if event.pressed and event.keycode == KEY_R and decoration_mode:
+			if is_moving_selected and selected_furniture != null:
+				rotate_selected_for_move()
+			else:
+				current_rotation += 90
+				if current_rotation >= 360:
+					current_rotation = 0
 
 			print("DIRECTION: ", current_rotation)
 
-		if event.pressed and event.keycode == KEY_1:
+		if event.pressed and event.keycode == KEY_M and decoration_mode:
+			start_move_selected()
+
+		if event.pressed and decoration_mode and (event.keycode == KEY_DELETE or event.keycode == KEY_BACKSPACE):
+			delete_selected_furniture()
+
+		if event.pressed and event.keycode == KEY_ESCAPE and decoration_mode:
+			cancel_selection_or_move()
+
+		if event.pressed and event.keycode == KEY_1 and decoration_mode:
 			select_furniture("chair_2x2")
 
-		if event.pressed and event.keycode == KEY_2:
+		if event.pressed and event.keycode == KEY_2 and decoration_mode:
 			select_furniture("table_4x2")
 
-		if event.pressed and event.keycode == KEY_3:
+		if event.pressed and event.keycode == KEY_3 and decoration_mode:
 			select_furniture("table_4x4")
 
-		if event.pressed and event.keycode == KEY_4:
+		if event.pressed and event.keycode == KEY_4 and decoration_mode:
 			select_furniture("bed_6x4")
 
-		if event.pressed and event.keycode == KEY_5:
+		if event.pressed and event.keycode == KEY_5 and decoration_mode:
 			select_furniture("fountain_6x6")
 
-		if event.pressed and event.keycode == KEY_6:
+		if event.pressed and event.keycode == KEY_6 and decoration_mode:
 			select_furniture("fridge_2x4")
 
-		if event.pressed and event.keycode == KEY_7:
+		if event.pressed and event.keycode == KEY_7 and decoration_mode:
 			select_furniture("painting_2x2")
 
-		if event.pressed and event.keycode == KEY_8:
+		if event.pressed and event.keycode == KEY_8 and decoration_mode:
 			select_furniture("flower_vase_2x2")
 
-		if event.pressed and event.keycode == KEY_9:
+		if event.pressed and event.keycode == KEY_9 and decoration_mode:
 			select_furniture("rug_4x4")
 
 		if event.pressed and event.keycode == KEY_P:
-			var data := get_decorations_save_data()
-			print(data)
+			print(get_decorations_save_data())
 
 		if event.pressed and event.keycode == KEY_S:
 			save_decorations_to_file()
 
 	if event is InputEventMouseButton:
 		if decoration_mode and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			var mouse_position: Vector2 = get_global_mouse_position()
-			var cell: Vector2i = IsoGrid.world_to_grid(mouse_position)
+			handle_decoration_click()
 
-			if current_preview_valid:
-				spawn_test_furniture(cell)
+
+func handle_decoration_click() -> void:
+	var mouse_position: Vector2 = get_global_mouse_position()
+	var cell: Vector2i = IsoGrid.world_to_grid(mouse_position)
+
+	if is_moving_selected and selected_furniture != null:
+		confirm_move_selected(cell)
+		return
+
+	var clicked_furniture: Node = get_top_furniture_at_cell(cell)
+
+	if clicked_furniture != null:
+		select_existing_furniture(clicked_furniture)
+		return
+
+	if current_preview_valid:
+		spawn_test_furniture(cell)
 
 
 func select_furniture(furniture_id: String) -> void:
@@ -167,12 +269,152 @@ func select_furniture(furniture_id: String) -> void:
 		print("ERROR: MUEBLE NO EXISTE EN DATABASE: ", furniture_id)
 		return
 
+	if selected_furniture != null:
+		selected_furniture.set_selected(false)
+		selected_furniture = null
+
+	is_moving_selected = false
+	clear_selected_cells()
+
 	var furniture_data: Dictionary = FurnitureDatabase.get_item(furniture_id)
 
 	current_furniture_id = furniture_id
 	current_furniture_size = furniture_data["size"]
 
 	print("FURNITURE SELECTED: ", current_furniture_id, " SIZE: ", current_furniture_size)
+
+
+func select_existing_furniture(furniture: Node) -> void:
+	if selected_furniture != null:
+		selected_furniture.set_selected(false)
+
+	selected_furniture = furniture
+	selected_furniture.set_selected(true)
+
+	is_moving_selected = false
+
+	print("SELECTED EXISTING: ", selected_furniture.item_id)
+
+
+func get_top_furniture_at_cell(cell: Vector2i) -> Node:
+	if not occupied_cells.has(cell):
+		return null
+
+	var layer_priority := [
+		"surface",
+		"ceiling",
+		"wall",
+		"furniture",
+		"floor"
+	]
+
+	for layer: String in layer_priority:
+		if occupied_cells[cell].has(layer):
+			var furniture = occupied_cells[cell][layer]
+			if furniture != null:
+				return furniture
+
+	return null
+
+
+func start_move_selected() -> void:
+	if selected_furniture == null:
+		print("NO HAY MUEBLE SELECCIONADO")
+		return
+
+	is_moving_selected = true
+
+	move_original_position = selected_furniture.grid_position
+	move_original_rotation = selected_furniture.rotation_degrees_data
+	move_original_size = selected_furniture.grid_size
+
+	free_furniture_cells(selected_furniture)
+
+	print("MOVIENDO: ", selected_furniture.item_id)
+
+
+func confirm_move_selected(cell: Vector2i) -> void:
+	if selected_furniture == null:
+		return
+
+	var item_id: String = selected_furniture.item_id
+	var rotation_data: int = selected_furniture.rotation_degrees_data
+	var base_size: Vector2i = FurnitureDatabase.get_size(item_id)
+	var rotated_size: Vector2i = get_rotated_size(base_size, rotation_data)
+
+	if not can_place_furniture(item_id, cell, rotated_size):
+		print("NO SE PUEDE MOVER A: ", cell)
+		return
+
+	selected_furniture.move_to_grid(
+		cell,
+		rotation_data,
+		rotated_size
+	)
+
+	occupy_furniture_cells(selected_furniture)
+
+	is_moving_selected = false
+
+	print("MUEBLE MOVIDO: ", selected_furniture.item_id, " A ", cell)
+
+
+func rotate_selected_for_move() -> void:
+	if selected_furniture == null:
+		return
+
+	var new_rotation: int = selected_furniture.rotation_degrees_data + 90
+
+	if new_rotation >= 360:
+		new_rotation = 0
+
+	var base_size: Vector2i = FurnitureDatabase.get_size(selected_furniture.item_id)
+	var rotated_size: Vector2i = get_rotated_size(base_size, new_rotation)
+
+	selected_furniture.move_to_grid(
+		selected_furniture.grid_position,
+		new_rotation,
+		rotated_size
+	)
+
+
+func cancel_selection_or_move() -> void:
+	if is_moving_selected and selected_furniture != null:
+		selected_furniture.move_to_grid(
+			move_original_position,
+			move_original_rotation,
+			move_original_size
+		)
+
+		occupy_furniture_cells(selected_furniture)
+
+		is_moving_selected = false
+
+		print("MOVIMIENTO CANCELADO")
+		return
+
+	if selected_furniture != null:
+		selected_furniture.set_selected(false)
+		selected_furniture = null
+		clear_selected_cells()
+		print("SELECCION CANCELADA")
+
+
+func delete_selected_furniture() -> void:
+	if selected_furniture == null:
+		print("NO HAY MUEBLE SELECCIONADO")
+		return
+
+	if is_moving_selected:
+		is_moving_selected = false
+	else:
+		free_furniture_cells(selected_furniture)
+
+	print("MUEBLE BORRADO: ", selected_furniture.item_id)
+
+	selected_furniture.queue_free()
+	selected_furniture = null
+	clear_selected_cells()
 
 
 func get_rotated_size(size: Vector2i, rotation_data: int) -> Vector2i:
@@ -365,6 +607,10 @@ func load_decorations(data: Array) -> void:
 
 	for child in furniture_root.get_children():
 		child.queue_free()
+
+	selected_furniture = null
+	is_moving_selected = false
+	clear_selected_cells()
 
 	for decoration_data in data:
 		var item_id: String = str(decoration_data["id"])
