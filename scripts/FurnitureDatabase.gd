@@ -6,63 +6,72 @@ static var ITEMS: Dictionary = {
 		"size": Vector2i(2, 2),
 		"category": "furniture",
 		"layer": "furniture",
-		"provides_surface": false
+		"provides_surface": false,
+		"blocks_movement": true
 	},
 	"table_4x2": {
 		"display_name": "Small Table",
 		"size": Vector2i(4, 2),
 		"category": "furniture",
 		"layer": "furniture",
-		"provides_surface": true
+		"provides_surface": true,
+		"blocks_movement": true
 	},
 	"table_4x4": {
 		"display_name": "Big Table",
 		"size": Vector2i(4, 4),
 		"category": "furniture",
 		"layer": "furniture",
-		"provides_surface": true
+		"provides_surface": true,
+		"blocks_movement": true
 	},
 	"bed_6x4": {
 		"display_name": "Bed",
 		"size": Vector2i(6, 4),
 		"category": "furniture",
 		"layer": "furniture",
-		"provides_surface": false
+		"provides_surface": false,
+		"blocks_movement": true
 	},
 	"fountain_6x6": {
 		"display_name": "Fountain",
 		"size": Vector2i(6, 6),
 		"category": "outdoor",
 		"layer": "furniture",
-		"provides_surface": false
+		"provides_surface": false,
+		"blocks_movement": true
 	},
 	"fridge_2x4": {
 		"display_name": "Fridge",
 		"size": Vector2i(2, 4),
 		"category": "kitchen",
 		"layer": "furniture",
-		"provides_surface": false
+		"provides_surface": false,
+		"blocks_movement": true
 	},
 	"painting_2x2": {
 		"display_name": "Painting",
 		"size": Vector2i(2, 2),
 		"category": "wall_decor",
 		"layer": "wall",
-		"provides_surface": false
+		"provides_surface": false,
+		"blocks_movement": false
 	},
 	"flower_vase_2x2": {
 		"display_name": "Flower Vase",
 		"size": Vector2i(2, 2),
 		"category": "decoration",
 		"layer": "surface",
-		"provides_surface": false
+		"provides_surface": false,
+		"blocks_movement": false
 	},
 	"rug_4x4": {
 		"display_name": "Rug",
 		"size": Vector2i(4, 4),
 		"category": "floor_decor",
 		"layer": "floor",
-		"provides_surface": false
+		"provides_surface": false,
+		"blocks_movement": false
 	}
 }
 
@@ -90,3 +99,10 @@ static func provides_surface(item_id: String) -> bool:
 		return false
 
 	return bool(ITEMS[item_id].get("provides_surface", false))
+
+
+static func blocks_movement(item_id: String) -> bool:
+	if not ITEMS.has(item_id):
+		return false
+
+	return bool(ITEMS[item_id].get("blocks_movement", false))

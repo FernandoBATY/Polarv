@@ -160,6 +160,7 @@ func update_selected_cells_display() -> void:
 
 	if is_moving_selected:
 		origin = IsoGrid.world_to_grid(get_global_mouse_position())
+
 		var base_size: Vector2i = FurnitureDatabase.get_size(selected_furniture.item_id)
 		size = get_rotated_size(base_size, selected_furniture.rotation_degrees_data)
 
@@ -194,6 +195,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				rotate_selected_for_move()
 			else:
 				current_rotation += 90
+
 				if current_rotation >= 360:
 					current_rotation = 0
 
@@ -311,6 +313,7 @@ func get_top_furniture_at_cell(cell: Vector2i) -> Node:
 	for layer: String in layer_priority:
 		if occupied_cells[cell].has(layer):
 			var furniture = occupied_cells[cell][layer]
+
 			if furniture != null:
 				return furniture
 
@@ -397,6 +400,7 @@ func cancel_selection_or_move() -> void:
 		selected_furniture.set_selected(false)
 		selected_furniture = null
 		clear_selected_cells()
+
 		print("SELECCION CANCELADA")
 
 
@@ -523,6 +527,24 @@ func free_furniture_cells(furniture: Node) -> void:
 			occupied_cells[cell][layer] = null
 
 
+func is_cell_blocked_for_movement(cell: Vector2i) -> bool:
+	if not occupied_cells.has(cell):
+		return false
+
+	ensure_cell_exists(cell)
+
+	for layer: String in OCCUPANCY_LAYERS:
+		var furniture = occupied_cells[cell][layer]
+
+		if furniture == null:
+			continue
+
+		if FurnitureDatabase.blocks_movement(furniture.item_id):
+			return true
+
+	return false
+
+
 func spawn_test_furniture(cell: Vector2i) -> void:
 	var rotated_size: Vector2i = get_rotated_size(current_furniture_size, current_rotation)
 
@@ -565,6 +587,7 @@ func save_decorations_to_file() -> void:
 	var json_text := JSON.stringify(data, "\t")
 
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+
 	if file == null:
 		print("ERROR AL GUARDAR: ", FileAccess.get_open_error())
 		return
@@ -577,11 +600,11 @@ func save_decorations_to_file() -> void:
 
 func load_decorations_from_file() -> void:
 	if not FileAccess.file_exists(SAVE_PATH):
-		print("NO HAY SAVE LOCAL, CARGANDO DATOS FAKE")
-		load_decorations(get_fake_save_data())
+		print("NO HAY SAVE LOCAL. MUNDO VACIO.")
 		return
 
 	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
+
 	if file == null:
 		print("ERROR AL CARGAR: ", FileAccess.get_open_error())
 		return
@@ -648,64 +671,3 @@ func load_decorations(data: Array) -> void:
 		)
 
 		occupy_furniture_cells(furniture)
-
-
-func get_fake_save_data() -> Array:
-	return [
-		{
-			"id": "rug_4x4",
-			"x": 4,
-			"y": 1,
-			"size_x": 4,
-			"size_y": 4,
-			"rotation": 0
-		},
-		{
-			"id": "chair_2x2",
-			"x": 5,
-			"y": 2,
-			"size_x": 2,
-			"size_y": 2,
-			"rotation": 0
-		},
-		{
-			"id": "table_4x2",
-			"x": 9,
-			"y": 2,
-			"size_x": 4,
-			"size_y": 2,
-			"rotation": 0
-		},
-		{
-			"id": "flower_vase_2x2",
-			"x": 10,
-			"y": 2,
-			"size_x": 2,
-			"size_y": 2,
-			"rotation": 0
-		},
-		{
-			"id": "table_4x4",
-			"x": 14,
-			"y": 4,
-			"size_x": 4,
-			"size_y": 4,
-			"rotation": 180
-		},
-		{
-			"id": "bed_6x4",
-			"x": 4,
-			"y": 8,
-			"size_x": 6,
-			"size_y": 4,
-			"rotation": 0
-		},
-		{
-			"id": "fountain_6x6",
-			"x": 13,
-			"y": 10,
-			"size_x": 6,
-			"size_y": 6,
-			"rotation": 0
-		}
-	]
