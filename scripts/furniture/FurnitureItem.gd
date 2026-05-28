@@ -1,3 +1,4 @@
+#FurnitureItem.gd
 extends Node2D
 
 const FurnitureDatabase = preload("res://scripts/FurnitureDatabase.gd")

@@ -1,6 +1,8 @@
+#scriptplayer.gd
 extends CharacterBody2D
 
 @export var speed: float = 220.0
+@export var nearest_cell_search_radius: int = 8
 
 var can_move_by_click: bool = true
 
@@ -27,11 +29,49 @@ func _input(event: InputEvent) -> void:
 
 	if event is InputEventMouseButton:
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			var mouse_position: Vector2 = get_global_mouse_position()
-			var target_cell: Vector2i = IsoGrid.world_to_grid(mouse_position)
-			var snapped_target: Vector2 = IsoGrid.grid_to_world(target_cell)
+			move_to_mouse()
 
-			navigation_agent.target_position = snapped_target
+
+func move_to_mouse() -> void:
+	var mouse_position: Vector2 = get_global_mouse_position()
+	var target_cell: Vector2i = IsoGrid.world_to_grid(mouse_position)
+
+	var final_cell: Vector2i = get_valid_target_cell(target_cell)
+	var snapped_target: Vector2 = IsoGrid.grid_to_world(final_cell)
+
+	var navigation_map: RID = get_world_2d().navigation_map
+	var safe_target: Vector2 = NavigationServer2D.map_get_closest_point(
+		navigation_map,
+		snapped_target
+	)
+
+	navigation_agent.target_position = safe_target
+
+
+func get_valid_target_cell(target_cell: Vector2i) -> Vector2i:
+	var parent_node := get_parent()
+
+	if parent_node == null:
+		return target_cell
+
+	if not parent_node.has_method("is_cell_blocked_for_movement"):
+		return target_cell
+
+	if not parent_node.is_cell_blocked_for_movement(target_cell):
+		return target_cell
+
+	for radius in range(1, nearest_cell_search_radius + 1):
+		for x in range(-radius, radius + 1):
+			for y in range(-radius, radius + 1):
+				if abs(x) != radius and abs(y) != radius:
+					continue
+
+				var candidate := target_cell + Vector2i(x, y)
+
+				if not parent_node.is_cell_blocked_for_movement(candidate):
+					return candidate
+
+	return target_cell
 
 
 func _physics_process(_delta: float) -> void:

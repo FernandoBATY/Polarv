@@ -1,3 +1,4 @@
+#FurnitureDatabase.gd
 extends RefCounted
 
 static var ITEMS: Dictionary = {

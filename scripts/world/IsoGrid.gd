@@ -1,3 +1,4 @@
+#IsoGrid.gd
 class_name IsoGrid
 extends RefCounted
 

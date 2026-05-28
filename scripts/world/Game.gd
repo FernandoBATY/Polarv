@@ -1,9 +1,11 @@
+#Game.gd
 extends Node2D
 
 const FurnitureDatabase = preload("res://scripts/FurnitureDatabase.gd")
 
 const FURNITURE_ITEM_SCENE: PackedScene = preload("res://scenes/furniture/FurnitureItem.tscn")
 const SAVE_PATH: String = "user://decorations_save.json"
+const NAV_BLOCKER_GROUP_NAME: String = "nav_blockers"
 
 const OCCUPANCY_LAYERS := [
 	"floor",
@@ -12,6 +14,8 @@ const OCCUPANCY_LAYERS := [
 	"wall",
 	"ceiling"
 ]
+
+@export var navigation_blocker_margin: float = 10.0
 
 var occupied_cells: Dictionary = {}
 var current_preview_valid: bool = true
@@ -28,12 +32,15 @@ var move_original_rotation: int = 0
 var move_original_size: Vector2i = Vector2i(2, 2)
 
 var selected_cells_root: Node2D
+var navigation_rebake_pending: bool = false
 
 @onready var player: CharacterBody2D = $Player
 @onready var grid_debug: Sprite2D = $GridDebug
 @onready var furniture_root: Node2D = $FurnitureRoot
 @onready var furniture_preview: Node2D = $FurniturePreview
 @onready var preview_cells: Node2D = $FurniturePreview/PreviewCells
+@onready var navigation_region: NavigationRegion2D = $NavigationRegion2D
+@onready var navigation_blockers: Node2D = $NavigationBlockers
 
 
 func _ready() -> void:
@@ -44,6 +51,7 @@ func _ready() -> void:
 	load_decorations_from_file()
 	select_furniture(current_furniture_id)
 	set_decoration_mode(decoration_mode)
+	rebuild_navigation_blockers()
 
 
 func _process(_delta: float) -> void:
@@ -120,12 +128,7 @@ func update_furniture_preview() -> void:
 	update_preview_cells(cell, rotated_size, current_preview_valid)
 
 	var preview_sprite := furniture_preview.get_node("Sprite2D") as Sprite2D
-
-	preview_sprite.texture = FurnitureDatabase.get_texture_for_rotation(
-		preview_id,
-		preview_rotation
-	)
-
+	preview_sprite.texture = FurnitureDatabase.get_texture_for_rotation(preview_id, preview_rotation)
 	preview_sprite.flip_h = preview_rotation == 180 or preview_rotation == 270
 
 	if current_preview_valid:
@@ -281,6 +284,7 @@ func handle_decoration_click() -> void:
 		select_existing_furniture(clicked_furniture)
 		return
 
+
 func select_furniture(furniture_id: String) -> void:
 	if not FurnitureDatabase.has_item(furniture_id):
 		print("ERROR: MUEBLE NO EXISTE EN DATABASE: ", furniture_id)
@@ -374,6 +378,8 @@ func confirm_move_selected(cell: Vector2i) -> void:
 
 	is_moving_selected = false
 
+	rebuild_navigation_blockers()
+
 	print("MUEBLE MOVIDO: ", selected_furniture.item_id, " A ", cell)
 
 
@@ -408,6 +414,8 @@ func cancel_selection_or_move() -> void:
 
 		is_moving_selected = false
 
+		rebuild_navigation_blockers()
+
 		print("MOVIMIENTO CANCELADO")
 		return
 
@@ -434,6 +442,8 @@ func delete_selected_furniture() -> void:
 	selected_furniture.queue_free()
 	selected_furniture = null
 	clear_selected_cells()
+
+	rebuild_navigation_blockers()
 
 
 func get_rotated_size(size: Vector2i, rotation_data: int) -> Vector2i:
@@ -583,6 +593,101 @@ func spawn_test_furniture(cell: Vector2i) -> void:
 
 	occupy_furniture_cells(furniture)
 
+	rebuild_navigation_blockers()
+
+
+func rebuild_navigation_blockers() -> void:
+	if navigation_blockers == null:
+		return
+
+	for child in navigation_blockers.get_children():
+		child.queue_free()
+
+	for furniture in furniture_root.get_children():
+		if not furniture.has_method("to_save_data"):
+			continue
+
+		if not FurnitureDatabase.blocks_movement(furniture.item_id):
+			continue
+
+		create_navigation_blocker_for_furniture(furniture)
+
+	request_navigation_rebake()
+
+
+func create_navigation_blocker_for_furniture(furniture: Node) -> void:
+	var blocker := StaticBody2D.new()
+	blocker.name = "NavBlocker_%s" % furniture.item_id
+	blocker.add_to_group(NAV_BLOCKER_GROUP_NAME)
+
+	var collision := CollisionPolygon2D.new()
+	collision.polygon = get_navigation_blocker_polygon(
+		furniture.grid_position,
+		furniture.grid_size
+	)
+
+	blocker.add_child(collision)
+	navigation_blockers.add_child(blocker)
+
+
+func get_navigation_blocker_polygon(origin: Vector2i, size: Vector2i) -> PackedVector2Array:
+	var top: Vector2 = IsoGrid.grid_to_world(origin)
+	var right: Vector2 = IsoGrid.grid_to_world(origin + Vector2i(size.x, 0))
+	var bottom: Vector2 = IsoGrid.grid_to_world(origin + Vector2i(size.x, size.y))
+	var left: Vector2 = IsoGrid.grid_to_world(origin + Vector2i(0, size.y))
+
+	var center: Vector2 = (top + right + bottom + left) / 4.0
+
+	top = push_point_away_from_center(top, center, navigation_blocker_margin)
+	right = push_point_away_from_center(right, center, navigation_blocker_margin)
+	bottom = push_point_away_from_center(bottom, center, navigation_blocker_margin)
+	left = push_point_away_from_center(left, center, navigation_blocker_margin)
+
+	return PackedVector2Array([
+		top,
+		right,
+		bottom,
+		left
+	])
+
+
+func push_point_away_from_center(point: Vector2, center: Vector2, amount: float) -> Vector2:
+	var direction: Vector2 = point - center
+
+	if direction.length() <= 0.01:
+		return point
+
+	return point + direction.normalized() * amount
+
+
+func request_navigation_rebake() -> void:
+	if navigation_region == null:
+		return
+
+	if navigation_rebake_pending:
+		return
+
+	navigation_rebake_pending = true
+	call_deferred("rebake_navigation")
+
+
+func rebake_navigation() -> void:
+	navigation_rebake_pending = false
+
+	if navigation_region == null:
+		return
+
+	if navigation_region.navigation_polygon == null:
+		print("ERROR: NavigationRegion2D no tiene NavigationPolygon.")
+		return
+
+	navigation_region.bake_navigation_polygon(false)
+
+	await get_tree().process_frame
+
+	NavigationServer2D.map_force_update(get_world_2d().navigation_map)
+
+	print("NAVIGATION REBAKED AND FORCED")
 
 func get_decorations_save_data() -> Array:
 	var decorations: Array = []
@@ -686,3 +791,5 @@ func load_decorations(data: Array) -> void:
 		)
 
 		occupy_furniture_cells(furniture)
+
+	rebuild_navigation_blockers()

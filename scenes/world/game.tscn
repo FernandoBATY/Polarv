@@ -22,6 +22,9 @@ sources/0 = SubResource("TileSetAtlasSource_h30v7")
 vertices = PackedVector2Array(560.78906, 43.007813, 1071.6563, 285.5625, 961.64844, 323.78906, 56.03125, 219.42188, 0.3125, 187.32031, 333.0703, 44.976563, 1016.1172, 378.2578, 457.9922, 657.8203, 9.1875, 433.42188, 19.460938, 332.28906, -1.40625, 257.32813, 2.2265625, 382.96875)
 polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2), PackedInt32Array(3, 4, 5), PackedInt32Array(3, 5, 0, 2, 6, 7, 8, 9), PackedInt32Array(9, 10, 3), PackedInt32Array(9, 8, 11)])
 outlines = Array[PackedVector2Array]([PackedVector2Array(331, 35, -22, 186, 37, 220, -13, 253, 9, 332, -8, 382, 0, 440, 458, 669, 1033, 381, 980, 328, 1098, 287, 563, 33)])
+parsed_geometry_type = 1
+source_geometry_mode = 1
+source_geometry_group_name = &"nav_blockers"
 
 [node name="Game" type="Node2D" unique_id=1208461862]
 script = ExtResource("1_3iwug")
@@ -51,3 +54,5 @@ texture = ExtResource("6_sarsd")
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1819679013]
 navigation_polygon = SubResource("NavigationPolygon_sarsd")
+
+[node name="NavigationBlockers" type="Node2D" parent="." unique_id=1940373574]
