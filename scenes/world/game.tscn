@@ -18,6 +18,8 @@ tile_layout = 5
 tile_size = Vector2i(128, 64)
 sources/0 = SubResource("TileSetAtlasSource_h30v7")
 
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_sarsd"]
+
 [node name="Game" type="Node2D" unique_id=1208461862]
 script = ExtResource("1_3iwug")
 
@@ -43,3 +45,6 @@ scale = Vector2(0.81250006, 1)
 texture = ExtResource("6_sarsd")
 
 [node name="PreviewCells" type="Node2D" parent="FurniturePreview" unique_id=478443086]
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1819679013]
+navigation_polygon = SubResource("NavigationPolygon_sarsd")
