@@ -7,7 +7,9 @@ static var ITEMS: Dictionary = {
 		"category": "furniture",
 		"layer": "furniture",
 		"provides_surface": false,
-		"blocks_movement": true
+		"blocks_movement": true,
+		"front_texture": "res://assets/furniture/chair_2x2_front.png",
+		"back_texture": "res://assets/furniture/chair_2x2_back.png"
 	},
 	"table_4x2": {
 		"display_name": "Small Table",
@@ -15,7 +17,9 @@ static var ITEMS: Dictionary = {
 		"category": "furniture",
 		"layer": "furniture",
 		"provides_surface": true,
-		"blocks_movement": true
+		"blocks_movement": true,
+		"front_texture": "res://assets/furniture/table_4x2_front.png",
+		"back_texture": "res://assets/furniture/table_4x2_back.png"
 	},
 	"table_4x4": {
 		"display_name": "Big Table",
@@ -23,7 +27,9 @@ static var ITEMS: Dictionary = {
 		"category": "furniture",
 		"layer": "furniture",
 		"provides_surface": true,
-		"blocks_movement": true
+		"blocks_movement": true,
+		"front_texture": "res://assets/furniture/table_4x4_front.png",
+		"back_texture": "res://assets/furniture/table_4x4_back.png"
 	},
 	"bed_6x4": {
 		"display_name": "Bed",
@@ -31,7 +37,9 @@ static var ITEMS: Dictionary = {
 		"category": "furniture",
 		"layer": "furniture",
 		"provides_surface": false,
-		"blocks_movement": true
+		"blocks_movement": true,
+		"front_texture": "res://assets/furniture/bed_6x4_front.png",
+		"back_texture": "res://assets/furniture/bed_6x4_back.png"
 	},
 	"fountain_6x6": {
 		"display_name": "Fountain",
@@ -39,7 +47,9 @@ static var ITEMS: Dictionary = {
 		"category": "outdoor",
 		"layer": "furniture",
 		"provides_surface": false,
-		"blocks_movement": true
+		"blocks_movement": true,
+		"front_texture": "res://assets/furniture/fountain_6x6_front.png",
+		"back_texture": "res://assets/furniture/fountain_6x6_back.png"
 	},
 	"fridge_2x4": {
 		"display_name": "Fridge",
@@ -47,7 +57,9 @@ static var ITEMS: Dictionary = {
 		"category": "kitchen",
 		"layer": "furniture",
 		"provides_surface": false,
-		"blocks_movement": true
+		"blocks_movement": true,
+		"front_texture": "res://assets/furniture/fridge_2x4_front.png",
+		"back_texture": "res://assets/furniture/fridge_2x4_back.png"
 	},
 	"painting_2x2": {
 		"display_name": "Painting",
@@ -55,7 +67,9 @@ static var ITEMS: Dictionary = {
 		"category": "wall_decor",
 		"layer": "wall",
 		"provides_surface": false,
-		"blocks_movement": false
+		"blocks_movement": false,
+		"front_texture": "res://assets/furniture/painting_2x2_front.png",
+		"back_texture": "res://assets/furniture/painting_2x2_back.png"
 	},
 	"flower_vase_2x2": {
 		"display_name": "Flower Vase",
@@ -63,7 +77,9 @@ static var ITEMS: Dictionary = {
 		"category": "decoration",
 		"layer": "surface",
 		"provides_surface": false,
-		"blocks_movement": false
+		"blocks_movement": false,
+		"front_texture": "res://assets/furniture/flower_vase_2x2_front.png",
+		"back_texture": "res://assets/furniture/flower_vase_2x2_back.png"
 	},
 	"rug_4x4": {
 		"display_name": "Rug",
@@ -71,7 +87,9 @@ static var ITEMS: Dictionary = {
 		"category": "floor_decor",
 		"layer": "floor",
 		"provides_surface": false,
-		"blocks_movement": false
+		"blocks_movement": false,
+		"front_texture": "res://assets/furniture/rug_4x4_front.png",
+		"back_texture": "res://assets/furniture/rug_4x4_back.png"
 	}
 }
 
@@ -106,3 +124,26 @@ static func blocks_movement(item_id: String) -> bool:
 		return false
 
 	return bool(ITEMS[item_id].get("blocks_movement", false))
+
+
+static func get_texture_path_for_rotation(item_id: String, rotation_data: int) -> String:
+	if not ITEMS.has(item_id):
+		return ""
+
+	if rotation_data == 90 or rotation_data == 180:
+		return str(ITEMS[item_id].get("back_texture", ""))
+
+	return str(ITEMS[item_id].get("front_texture", ""))
+
+
+static func get_texture_for_rotation(item_id: String, rotation_data: int) -> Texture2D:
+	var path: String = get_texture_path_for_rotation(item_id, rotation_data)
+
+	if path == "":
+		return null
+
+	if not ResourceLoader.exists(path):
+		print("TEXTURE NO EXISTE: ", path)
+		return null
+
+	return load(path)

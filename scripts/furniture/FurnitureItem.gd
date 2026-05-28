@@ -1,12 +1,11 @@
 extends Node2D
 
+const FurnitureDatabase = preload("res://scripts/FurnitureDatabase.gd")
+
 @export var item_id: String = "chair_2x2"
 @export var grid_position: Vector2i = Vector2i.ZERO
 @export var grid_size: Vector2i = Vector2i(2, 2)
 @export var rotation_degrees_data: int = 0
-
-@export var front_texture: Texture2D
-@export var back_texture: Texture2D
 
 var is_selected: bool = false
 
@@ -34,26 +33,22 @@ func apply_visual_direction() -> void:
 	var sprite := $Sprite2D as Sprite2D
 
 	sprite.flip_h = false
+	sprite.texture = FurnitureDatabase.get_texture_for_rotation(
+		item_id,
+		rotation_degrees_data
+	)
 
 	match rotation_degrees_data:
 		0:
-			if front_texture:
-				sprite.texture = front_texture
 			sprite.flip_h = false
 
 		90:
-			if back_texture:
-				sprite.texture = back_texture
 			sprite.flip_h = false
 
 		180:
-			if back_texture:
-				sprite.texture = back_texture
 			sprite.flip_h = true
 
 		270:
-			if front_texture:
-				sprite.texture = front_texture
 			sprite.flip_h = true
 
 

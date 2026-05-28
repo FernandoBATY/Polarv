@@ -68,7 +68,10 @@ func set_decoration_mode(value: bool) -> void:
 	if player and player.has_method("set_movement_enabled"):
 		player.set_movement_enabled(not decoration_mode)
 
-	if not decoration_mode:
+	if decoration_mode:
+		if player and player.has_method("set_movement_enabled"):
+			player.set_movement_enabled(false)
+	else:
 		if is_moving_selected:
 			cancel_selection_or_move()
 
@@ -117,6 +120,12 @@ func update_furniture_preview() -> void:
 	update_preview_cells(cell, rotated_size, current_preview_valid)
 
 	var preview_sprite := furniture_preview.get_node("Sprite2D") as Sprite2D
+
+	preview_sprite.texture = FurnitureDatabase.get_texture_for_rotation(
+		preview_id,
+		preview_rotation
+	)
+
 	preview_sprite.flip_h = preview_rotation == 180 or preview_rotation == 270
 
 	if current_preview_valid:
@@ -256,15 +265,21 @@ func handle_decoration_click() -> void:
 		confirm_move_selected(cell)
 		return
 
+	var rotated_size: Vector2i = get_rotated_size(current_furniture_size, current_rotation)
+
+	if can_place_furniture(
+		current_furniture_id,
+		cell,
+		rotated_size
+	):
+		spawn_test_furniture(cell)
+		return
+
 	var clicked_furniture: Node = get_top_furniture_at_cell(cell)
 
 	if clicked_furniture != null:
 		select_existing_furniture(clicked_furniture)
 		return
-
-	if current_preview_valid:
-		spawn_test_furniture(cell)
-
 
 func select_furniture(furniture_id: String) -> void:
 	if not FurnitureDatabase.has_item(furniture_id):
