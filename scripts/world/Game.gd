@@ -1,4 +1,3 @@
-#Game.gd
 extends Node2D
 
 const FurnitureDatabase = preload("res://scripts/FurnitureDatabase.gd")
@@ -379,6 +378,7 @@ func confirm_move_selected(cell: Vector2i) -> void:
 	is_moving_selected = false
 
 	rebuild_navigation_blockers()
+	save_decorations_to_file()
 
 	print("MUEBLE MOVIDO: ", selected_furniture.item_id, " A ", cell)
 
@@ -444,6 +444,7 @@ func delete_selected_furniture() -> void:
 	clear_selected_cells()
 
 	rebuild_navigation_blockers()
+	save_decorations_to_file()
 
 
 func get_rotated_size(size: Vector2i, rotation_data: int) -> Vector2i:
@@ -594,6 +595,7 @@ func spawn_test_furniture(cell: Vector2i) -> void:
 	occupy_furniture_cells(furniture)
 
 	rebuild_navigation_blockers()
+	save_decorations_to_file()
 
 
 func rebuild_navigation_blockers() -> void:
@@ -689,6 +691,7 @@ func rebake_navigation() -> void:
 
 	print("NAVIGATION REBAKED AND FORCED")
 
+
 func get_decorations_save_data() -> Array:
 	var decorations: Array = []
 
@@ -715,7 +718,7 @@ func save_decorations_to_file() -> void:
 	file.store_string(json_text)
 	file.close()
 
-	print("GUARDADO OK: ", SAVE_PATH)
+	print("AUTO SAVE OK: ", SAVE_PATH)
 
 
 func load_decorations_from_file() -> void:
