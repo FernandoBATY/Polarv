@@ -1,45 +1,56 @@
 extends CharacterBody2D
 
 @export var speed: float = 220.0
-@export var stop_distance: float = 2.0
 
-var target_position: Vector2
 var can_move_by_click: bool = true
+
+@onready var navigation_agent: NavigationAgent2D = $NavigationAgent2D
 
 
 func _ready() -> void:
-	target_position = global_position
+	navigation_agent.path_desired_distance = 4.0
+	navigation_agent.target_desired_distance = 4.0
+	navigation_agent.target_position = global_position
 
 
 func set_movement_enabled(value: bool) -> void:
 	can_move_by_click = value
 
 	if not can_move_by_click:
-		target_position = global_position
+		velocity = Vector2.ZERO
+		navigation_agent.target_position = global_position
 
 
 func _input(event: InputEvent) -> void:
 	if not can_move_by_click:
 		return
 
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		var mouse_position: Vector2 = get_global_mouse_position()
-		var target_cell: Vector2i = IsoGrid.world_to_grid(mouse_position)
+	if event is InputEventMouseButton:
+		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			var mouse_position: Vector2 = get_global_mouse_position()
+			var target_cell: Vector2i = IsoGrid.world_to_grid(mouse_position)
+			var snapped_target: Vector2 = IsoGrid.grid_to_world(target_cell)
 
-		var parent_node := get_parent()
-
-		if parent_node != null and parent_node.has_method("is_cell_blocked_for_movement"):
-			if parent_node.is_cell_blocked_for_movement(target_cell):
-				print("MOVIMIENTO BLOQUEADO EN CELDA: ", target_cell)
-				return
-
-		target_position = mouse_position
+			navigation_agent.target_position = snapped_target
 
 
-func _physics_process(delta: float) -> void:
-	var direction: Vector2 = target_position - global_position
+func _physics_process(_delta: float) -> void:
+	if not can_move_by_click:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
 
-	if direction.length() > stop_distance:
-		global_position += direction.normalized() * speed * delta
+	if navigation_agent.is_navigation_finished():
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+
+	var next_path_position: Vector2 = navigation_agent.get_next_path_position()
+	var direction: Vector2 = next_path_position - global_position
+
+	if direction.length() < 2.0:
+		velocity = Vector2.ZERO
 	else:
-		global_position = target_position
+		velocity = direction.normalized() * speed
+
+	move_and_slide()

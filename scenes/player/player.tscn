@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://6kwpmx1m8554" path="res://scenes/player/ejem.png" id="2_dovo2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8afob"]
+size = Vector2(2, 2)
 
 [node name="Player" type="CharacterBody2D" unique_id=2139512567]
 script = ExtResource("1_8afob")
@@ -12,11 +13,15 @@ script = ExtResource("1_8afob")
 position = Vector2(180.03125, 193.96877)
 scale = Vector2(0.9138184, 0.937744)
 texture = ExtResource("2_dovo2")
+offset = Vector2(-150, -150)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1898421248]
 shape = SubResource("RectangleShape2D_8afob")
 
 [node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=1582108671]
+path_desired_distance = 4.0
+target_desired_distance = 4.0
+path_max_distance = 10.0
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1655683563]
 enabled = false
