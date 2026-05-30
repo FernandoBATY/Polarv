@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://dg7mhpr8oh7cg" path="res://assets/tiles/grass.png" id="2_r5nxa"]
 [ext_resource type="Texture2D" uid="uid://ov4l6orujhms" path="res://assets/pasto.png" id="5_h30v7"]
 [ext_resource type="Texture2D" uid="uid://c64g1pr5t1746" path="res://assets/chair_placeholder.png" id="6_sarsd"]
+[ext_resource type="PackedScene" uid="uid://daol5t7gf4c4v" path="res://scenes/ui/InventoryUI.tscn" id="7_3gx7t"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_h30v7"]
 texture = ExtResource("2_r5nxa")
@@ -56,3 +57,5 @@ texture = ExtResource("6_sarsd")
 navigation_polygon = SubResource("NavigationPolygon_sarsd")
 
 [node name="NavigationBlockers" type="Node2D" parent="." unique_id=1940373574]
+
+[node name="InventoryUI" parent="." unique_id=614879984 instance=ExtResource("7_3gx7t")]

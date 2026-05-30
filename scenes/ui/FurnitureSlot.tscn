@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://b2gcch34dxey7"]
+
+[ext_resource type="Script" uid="uid://bepitqiy2ji2l" path="res://scripts/ui/FurnitureSlot.gd" id="1_t5154"]
+
+[node name="FurnitureSlot" type="Button" unique_id=1501659383]
+offset_right = 8.0
+offset_bottom = 8.0
+script = ExtResource("1_t5154")
+
+[node name="Icon" type="TextureRect" parent="." unique_id=83931247]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="NameLabel" type="Label" parent="." unique_id=1578952527]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0

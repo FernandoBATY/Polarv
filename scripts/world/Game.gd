@@ -40,12 +40,16 @@ var navigation_rebake_pending: bool = false
 @onready var preview_cells: Node2D = $FurniturePreview/PreviewCells
 @onready var navigation_region: NavigationRegion2D = $NavigationRegion2D
 @onready var navigation_blockers: Node2D = $NavigationBlockers
+@onready var inventory_ui: CanvasLayer = $InventoryUI
 
 
 func _ready() -> void:
 	selected_cells_root = Node2D.new()
 	selected_cells_root.name = "SelectedCells"
 	add_child(selected_cells_root)
+
+	if inventory_ui and inventory_ui.has_signal("furniture_selected"):
+		inventory_ui.furniture_selected.connect(_on_inventory_furniture_selected)
 
 	load_decorations_from_file()
 	select_furniture(current_furniture_id)
@@ -87,6 +91,9 @@ func set_decoration_mode(value: bool) -> void:
 			selected_furniture = null
 
 		clear_selected_cells()
+
+		if inventory_ui and inventory_ui.has_method("close"):
+			inventory_ui.close()
 
 	print("DECORATION MODE: ", decoration_mode)
 
@@ -201,6 +208,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.pressed and event.keycode == KEY_D:
 			set_decoration_mode(not decoration_mode)
 
+		if event.pressed and event.keycode == KEY_I:
+			print("I PRESSED. DECORATION MODE: ", decoration_mode)
+
+			if decoration_mode:
+				if inventory_ui and inventory_ui.has_method("toggle"):
+					inventory_ui.toggle()
+				else:
+					print("ERROR: InventoryUI no tiene metodo toggle().")
+			else:
+				print("INVENTARIO BLOQUEADO: primero entra a modo decoracion con D.")
+
 		if event.pressed and event.keycode == KEY_R and decoration_mode:
 			if is_moving_selected and selected_furniture != null:
 				rotate_selected_for_move()
@@ -221,42 +239,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.pressed and event.keycode == KEY_ESCAPE and decoration_mode:
 			cancel_selection_or_move()
 
-		if event.pressed and event.keycode == KEY_1 and decoration_mode:
-			select_furniture("chair_2x2")
-
-		if event.pressed and event.keycode == KEY_2 and decoration_mode:
-			select_furniture("table_4x2")
-
-		if event.pressed and event.keycode == KEY_3 and decoration_mode:
-			select_furniture("table_4x4")
-
-		if event.pressed and event.keycode == KEY_4 and decoration_mode:
-			select_furniture("bed_6x4")
-
-		if event.pressed and event.keycode == KEY_5 and decoration_mode:
-			select_furniture("fountain_6x6")
-
-		if event.pressed and event.keycode == KEY_6 and decoration_mode:
-			select_furniture("fridge_2x4")
-
-		if event.pressed and event.keycode == KEY_7 and decoration_mode:
-			select_furniture("painting_2x2")
-
-		if event.pressed and event.keycode == KEY_8 and decoration_mode:
-			select_furniture("flower_vase_2x2")
-
-		if event.pressed and event.keycode == KEY_9 and decoration_mode:
-			select_furniture("rug_4x4")
-
 		if event.pressed and event.keycode == KEY_P:
 			print(get_decorations_save_data())
-
-		if event.pressed and event.keycode == KEY_S:
-			save_decorations_to_file()
 
 	if event is InputEventMouseButton:
 		if decoration_mode and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			handle_decoration_click()
+
+
+func _on_inventory_furniture_selected(furniture_id: String) -> void:
+	select_furniture(furniture_id)
 
 
 func handle_decoration_click() -> void:
