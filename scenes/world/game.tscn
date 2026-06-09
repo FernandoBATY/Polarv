@@ -59,3 +59,5 @@ navigation_polygon = SubResource("NavigationPolygon_sarsd")
 [node name="NavigationBlockers" type="Node2D" parent="." unique_id=1940373574]
 
 [node name="InventoryUI" parent="." unique_id=614879984 instance=ExtResource("7_3gx7t")]
+scale = Vector2(5, 5)
+transform = Transform2D(5, 0, 0, 5, 0, 0)

@@ -5,6 +5,7 @@ const FurnitureDatabase = preload("res://scripts/FurnitureDatabase.gd")
 const FURNITURE_ITEM_SCENE: PackedScene = preload("res://scenes/furniture/FurnitureItem.tscn")
 const SAVE_PATH: String = "user://decorations_save.json"
 const NAV_BLOCKER_GROUP_NAME: String = "nav_blockers"
+var block_next_decoration_click: bool = false
 
 const OCCUPANCY_LAYERS := [
 	"floor",
@@ -244,10 +245,16 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if event is InputEventMouseButton:
 		if decoration_mode and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			if block_next_decoration_click:
+				block_next_decoration_click = false
+				print("CLICK BLOQUEADO POR UI")
+				return
+
 			handle_decoration_click()
 
 
 func _on_inventory_furniture_selected(furniture_id: String) -> void:
+	block_next_decoration_click = true
 	select_furniture(furniture_id)
 
 
