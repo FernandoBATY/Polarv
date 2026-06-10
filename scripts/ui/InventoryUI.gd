@@ -5,6 +5,7 @@ signal furniture_selected(furniture_id: String)
 const FurnitureDatabase = preload("res://scripts/FurnitureDatabase.gd")
 const FURNITURE_SLOT_SCENE: PackedScene = preload("res://scenes/ui/FurnitureSlot.tscn")
 
+@onready var open_button: Button = $OpenButton
 @onready var panel: Panel = $Panel
 @onready var grid_container: GridContainer = $Panel/ScrollContainer/GridContainer
 
@@ -12,6 +13,9 @@ const FURNITURE_SLOT_SCENE: PackedScene = preload("res://scenes/ui/FurnitureSlot
 func _ready() -> void:
 	panel.visible = false
 	build_inventory()
+
+	if not open_button.pressed.is_connected(toggle):
+		open_button.pressed.connect(toggle)
 
 
 func build_inventory() -> void:
