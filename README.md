@@ -23,6 +23,11 @@
 \* \*\*Gameplay Activo:\*\* Decoración en grilla, pesca, minijuegos, tienda diaria, gachapon y eventos estacionales/premium.
 
 
+## 🧭 Estado actual del prototipo
+
+El flujo jugable implementado en esta rama llega hasta el sistema de inventario y la selección de muebles en modo decoración. El resto de sistemas del juego sigue en desarrollo.
+
+
 
 \---
 
