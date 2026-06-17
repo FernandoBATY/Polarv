@@ -6,13 +6,15 @@
 script = ExtResource("1_p0ay3")
 
 [node name="OpenButton" type="Button" parent="." unique_id=1012248820]
-offset_right = 8.0
-offset_bottom = 8.0
+offset_left = 287.0
+offset_top = 6.0
+offset_right = 375.0
+offset_bottom = 37.0
 text = "Inventario"
 
 [node name="Panel" type="Panel" parent="." unique_id=1292488090]
-offset_right = 40.0
-offset_bottom = 40.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="ScrollContainer" type="ScrollContainer" parent="Panel" unique_id=1011921017]
 layout_mode = 0

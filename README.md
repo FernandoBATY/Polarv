@@ -23,71 +23,73 @@
 \* \*\*Gameplay Activo:\*\* Decoración en grilla, pesca, minijuegos, tienda diaria, gachapon y eventos estacionales/premium.
 
 
+# 🏔️ POLAR V (Nombre Temporal)
+
+Bienvenido al repositorio de **POLAR V**, un prototipo de juego móvil cozy/social en 2D isométrico centrado en la decoración y la interacción entre jugadores.
+
+---
+
+## 📌 Visión general
+
+- **Género:** Cozy / Social RPG para móvil.
+- **Perspectiva:** 2D isométrico (arte pintado, sin luces dinámicas).
+- **Enfoque:** Gestión y personalización de una aldea por jugador, decoración en grilla y visitas sociales.
+
 ## 🧭 Estado actual del prototipo
 
-El flujo jugable implementado en esta rama llega hasta el sistema de inventario y la selección de muebles en modo decoración. El resto de sistemas del juego sigue en desarrollo.
+- Implementado: sistema de inventario, selección e instanciado de muebles en modo decoración, grilla isométrica y guardado local básico.
+- En progreso: sincronización/servicio online, economía/tienda y minijuegos.
 
+---
 
+## 🛠️ Stack y requisitos
 
-\---
+- **Motor:** Godot Engine 4.3+
+- **Backend (plan):** Nakama (Heroic Labs)
+- **Base de datos (plan):** PostgreSQL
 
+Requisitos locales:
 
+1. Instalar Godot 4.3 o superior.
+2. Abrir `project.godot` desde el editor.
+3. Ejecutar la escena principal: `scenes/world/game.tscn` (seleccionarla como escena principal en el editor si es necesario).
 
-\## 🛠️ 2. Stack Tecnológico
+---
 
+## 📐 Especificaciones técnicas clave
 
+- La colocación de muebles, colisiones y navegación usa una grilla isométrica.
+- Tile base sugerido: 128x64 px. Sprites de objeto: 256x256 px.
+- Capas lógicas: `floor`, `furniture`, `surface`, `wall`, `ceiling`.
 
-| Componente | Tecnología | Notas / Versión |
+### Regla sobre TileMap (Godot 4.3+)
 
-| :--- | :--- | :--- |
-
-| \*\*Motor de Juego\*\* | Godot Engine | Versión 4.3+ |
-
-| \*\*Backend / Servidor\*\* | Heroic Labs Nakama | Gestión social, tiempo y guardado |
-
-| \*\*Base de Datos\*\* | PostgreSQL | Persistencia de datos del servidor |
-
-| \*\*Pathfinding\*\* | NavigationAgent2D | Movimiento basado en \*Touch-to-move\* |
-
-
-
-\---
-
-
-
-\## 📐 3. Especificaciones Técnicas Clave
-
-
-
-\### Sistema de Grilla y Construcción
-
-Todo el posicionamiento de muebles, colisiones y navegación se rige por una grilla isométrica.
-
-\* \*\*Tamaño del Tile base:\*\* 128x64 px.
-
-\* \*\*Sprites de Objetos:\*\* Base de 256x256 px.
-
-\* \*\*Capas Lógicas de Decoración:\*\* `floor`, `furniture`, `surface`, `wall`, `ceiling`.
-
-\* \*\*Superficies:\*\* Los muebles con metadata específica (`decoratable = true`) permiten colocar otros objetos encima (ej. mesas).
-
-
-
-\### ❌ Regla Crítica del TileMap (Godot 4.3+)
-
-\*\*No usar el nodo `TileMap` tradicional (obsoleto).\*\* Se implementa estrictamente \*\*`TileMapLayer`\*\* dividiendo la escena del mundo bajo la siguiente estructura de nodos:
-
-
+No usar el nodo `TileMap` tradicional; emplear `TileMapLayer` y la estructura de nodos del mundo:
 
 ```text
-
 World (Node2D)
+├── GroundLayer (TileMapLayer)
+├── BlockLayer (TileMapLayer)
+├── NavigationLayer (TileMapLayer) [opcional]
+└── FurnitureRoot (Node2D)
+```
 
-├── GroundLayer (TileMapLayer -> Solo terreno/lógica)
+---
 
-├── BlockLayer (TileMapLayer -> Colisiones/obstáculos)
+## Estructura del repositorio (resumen)
 
-├── NavigationLayer (TileMapLayer opcional -> Caminos)
+- `project.godot` — archivo del proyecto Godot.
+- `scenes/` — escenas del juego (`world/`, `player/`, `furniture/`, etc.).
+- `scripts/` — GDScript (sistemas: inventario, muebles, UI, mundo).
+- `assets/` — recursos importados (sprites, tiles, audio).
 
-└── FurnitureRoot (Node2D -> Los muebles se instancian como nodos independientes)
+## Cómo contribuir
+
+- Abrir un issue para discutir cambios grandes.
+- Hacer forks/branches y enviar PRs pequeñas y enfocadas.
+- Usamos GDScript; respeta la convención de nodos y la estructura de escenas existente.
+
+---
+
+Si quieres, puedo añadir una sección de comandos para ejecutar pruebas locales o un checklist de tareas abiertas. Indícame qué prefieres actualizar a continuación.
 
