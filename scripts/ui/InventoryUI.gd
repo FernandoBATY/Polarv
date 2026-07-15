@@ -7,7 +7,7 @@ const FURNITURE_SLOT_SCENE: PackedScene = preload("res://scenes/ui/FurnitureSlot
 
 @onready var open_button: Button = $OpenButton
 @onready var panel: Panel = $Panel
-@onready var grid_container: GridContainer = $Panel/ScrollContainer/GridContainer
+@onready var grid_container: GridContainer = $Panel/MarginContainer/ScrollContainer/GridContainer
 
 
 func _ready() -> void:

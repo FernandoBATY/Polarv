@@ -4,16 +4,16 @@ signal furniture_selected(furniture_id: String)
 
 var item_id: String = ""
 
-@onready var icon_rect: TextureRect = $Icon
-@onready var name_label: Label = $NameLabel
+@onready var icon_rect: TextureRect = $VBoxContainer/Icon
+@onready var name_label: Label = $VBoxContainer/NameLabel
 
 
 func setup(new_item_id: String, item_data: Dictionary) -> void:
 	item_id = new_item_id
 
-	name_label.text = str(item_data.get("display_name", item_id))
+	name_label.text = item_data.get("display_name", item_id)
 
-	var texture_path: String = str(item_data.get("front_texture", ""))
+	var texture_path: String = item_data.get("front_texture", "")
 
 	if texture_path != "" and ResourceLoader.exists(texture_path):
 		icon_rect.texture = load(texture_path)
