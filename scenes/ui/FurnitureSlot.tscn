@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://bepitqiy2ji2l" path="res://scripts/ui/FurnitureSlot.gd" id="1_t5154"]
 
 [node name="FurnitureSlot" type="Button" unique_id=1501659383]
-custom_minimum_size = Vector2(150, 170)
+custom_minimum_size = Vector2(100, 120)
 offset_right = 8.0
 offset_bottom = 8.0
 script = ExtResource("1_t5154")
@@ -14,7 +14,7 @@ offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="Icon" type="TextureRect" parent="VBoxContainer" unique_id=83931247]
-custom_minimum_size = Vector2(120, 120)
+custom_minimum_size = Vector2(30, 30)
 layout_mode = 2
 expand_mode = 3
 stretch_mode = 5
