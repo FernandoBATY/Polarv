@@ -90,6 +90,3 @@ World (Node2D)
 - Usamos GDScript; respeta la convención de nodos y la estructura de escenas existente.
 
 ---
-
-Si quieres, puedo añadir una sección de comandos para ejecutar pruebas locales o un checklist de tareas abiertas. Indícame qué prefieres actualizar a continuación.
-
