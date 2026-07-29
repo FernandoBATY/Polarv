@@ -1,6 +1,6 @@
-[gd_scene format=3 uid="uid://bv3ixqimphhg2"]
+[gd_scene format=3]
 
-[ext_resource type="Script" uid="uid://ccy30wq7ky68s" path="res://scripts/world/OccupancyManager.gd" id="1_gqenx"]
+[ext_resource type="Script" path="res://scripts/world/OccupancyManager.gd" id="1_gqenx"]
 
 [node name="OccupancyManager" type="Node"]
 script = ExtResource("1_gqenx")
