@@ -16,6 +16,11 @@ text = "Inventario"
 
 [node name="WindowBase" parent="." instance=ExtResource("2_2sc5v")]
 
+[node name="CategoryFilter" type="HBoxContainer" parent="WindowBase/WindowMargin/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
 [node name="ScrollContainer" type="ScrollContainer" parent="WindowBase/WindowMargin/VBoxContainer/ContentContainer"]
 layout_mode = 2
 size_flags_horizontal = 3

@@ -15,7 +15,6 @@ signal move_started(furniture: Node, original_pos: Vector2i)
 signal move_confirmed(furniture: Node, new_cell: Vector2i)
 signal move_cancelled(furniture: Node)
 signal furniture_deleted(furniture: Node)
-signal rotation_changed(rotation: int)
 
 
 func select_existing(furniture: Node) -> void:

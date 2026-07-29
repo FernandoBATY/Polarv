@@ -3,15 +3,22 @@
 [ext_resource type="Script" path="res://scripts/world/Game.gd" id="1_3iwug"]
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_w44h4"]
 [ext_resource type="PackedScene" path="res://scenes/furniture/furniture_root.tscn" id="2_hqfqh"]
+[ext_resource type="Texture2D" path="res://assets/tiles/grass.png" id="2_r5nxa"]
 [ext_resource type="PackedScene" path="res://scenes/world/SaveManager.tscn" id="3_mq7qq"]
 [ext_resource type="PackedScene" path="res://scenes/world/OccupancyManager.tscn" id="4_5bor"]
+[ext_resource type="Script" path="res://scripts/scriptplayer.gd" id="4_5l30k"]
 [ext_resource type="PackedScene" path="res://scenes/world/NavigationManager.tscn" id="5_7cnw"]
+[ext_resource type="Texture2D" path="res://assets/pasto.png" id="5_h30v7"]
 [ext_resource type="PackedScene" path="res://scenes/world/SelectionManager.tscn" id="6_f1c4"]
+[ext_resource type="Texture2D" path="res://assets/chair_placeholder.png" id="6_sarsd"]
+[ext_resource type="PackedScene" path="res://scenes/ui/InventoryUI.tscn" id="7_3gx7t"]
 [ext_resource type="PackedScene" path="res://scenes/world/DecorationController.tscn" id="7_o2vr"]
-[ext_resource type="Texture2D" uid="uid://dg7mhpr8oh7cg" path="res://assets/tiles/grass.png" id="2_r5nxa"]
-[ext_resource type="Texture2D" uid="uid://ov4l6orujhms" path="res://assets/pasto.png" id="5_h30v7"]
-[ext_resource type="Texture2D" uid="uid://c64g1pr5t1746" path="res://assets/chair_placeholder.png" id="6_sarsd"]
-[ext_resource type="PackedScene" uid="uid://daol5t7gf4c4v" path="res://scenes/ui/InventoryUI.tscn" id="7_3gx7t"]
+[ext_resource type="Script" path="res://scripts/world/SaveManager.gd" id="7_pwfh8"]
+[ext_resource type="Script" path="res://scripts/world/OccupancyManager.gd" id="9_ceq8q"]
+[ext_resource type="Script" path="res://scripts/world/NavigationManager.gd" id="11_xvq40"]
+[ext_resource type="Script" path="res://scripts/world/SelectionManager.gd" id="13_7frqr"]
+[ext_resource type="Script" path="res://scripts/world/DecorationController.gd" id="15_2jpxh"]
+[ext_resource type="Script" path="res://scripts/ui/InventoryUI.gd" id="19_f1140"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_h30v7"]
 texture = ExtResource("2_r5nxa")
@@ -39,20 +46,26 @@ script = ExtResource("1_3iwug")
 tile_map_data = PackedByteArray("AAAGAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAGAAEAAAAAAAAAAAAHAAEAAAAAAAAAAAAGAAIAAAAAAAAAAAAHAAIAAAAAAAAAAAAIAAEAAAAAAAAAAAAIAAAAAAAAAAAAAAAIAAIAAAAAAAAAAAAJAAAAAAAAAAAAAAAJAAEAAAAAAAAAAAAJAAIAAAAAAAAAAAAGAAMAAAAAAAAAAAAHAAMAAAAAAAAAAAAIAAMAAAAAAAAAAAAKAAMAAAAAAAAAAAAJAAMAAAAAAAAAAAAKAAIAAAAAAAAAAAAKAAEAAAAAAAAAAAAKAAAAAAAAAAAAAAAGAAQAAAAAAAAAAAAHAAQAAAAAAAAAAAAIAAQAAAAAAAAAAAAJAAQAAAAAAAAAAAAKAAQAAAAAAAAAAAALAAQAAAAAAAAAAAALAAMAAAAAAAAAAAALAAIAAAAAAAAAAAALAAEAAAAAAAAAAAALAAAAAAAAAAAAAAALAP//AAAAAAAAAAAMAAEAAAAAAAAAAAAMAAIAAAAAAAAAAAALAAUAAAAAAAAAAAAKAAUAAAAAAAAAAAAJAAUAAAAAAAAAAAAIAAUAAAAAAAAAAAAHAAUAAAAAAAAAAAAGAAUAAAAAAAAAAAAMAAUAAAAAAAAAAAAMAAQAAAAAAAAAAAAMAAMAAAAAAAAAAAAMAAAAAAAAAAAAAAAMAP//AAAAAAAAAAAKAP//AAAAAAAAAAAJAP//AAAAAAAAAAAIAP//AAAAAAAAAAAHAP//AAAAAAAAAAAGAP//AAAAAAAAAAAFAAUAAAAAAAAAAAAFAAQAAAAAAAAAAAAFAAMAAAAAAAAAAAAFAAIAAAAAAAAAAAAFAAEAAAAAAAAAAAAFAAAAAAAAAAAAAAAFAP//AAAAAAAAAAAEAAQAAAAAAAAAAAAEAAMAAAAAAAAAAAAEAAIAAAAAAAAAAAAEAAEAAAAAAAAAAAAEAAAAAAAAAAAAAAAEAP//AAAAAAAAAAAEAP7/AAAAAAAAAAADAAIAAAAAAAAAAAADAAEAAAAAAAAAAAADAAAAAAAAAAAAAAAEAP3/AAAAAAAAAAAEAPz/AAAAAAAAAAADAP3/AAAAAAAAAAADAP7/AAAAAAAAAAADAP//AAAAAAAAAAAFAP7/AAAAAAAAAAAGAP7/AAAAAAAAAAAHAP7/AAAAAAAAAAAIAP7/AAAAAAAAAAAJAP7/AAAAAAAAAAAMAP7/AAAAAAAAAAALAP7/AAAAAAAAAAAKAP7/AAAAAAAAAAAHAP3/AAAAAAAAAAAGAP3/AAAAAAAAAAAFAP3/AAAAAAAAAAAIAP3/AAAAAAAAAAAJAP3/AAAAAAAAAAAJAPz/AAAAAAAAAAAKAP3/AAAAAAAAAAAKAPz/AAAAAAAAAAALAP3/AAAAAAAAAAAMAP3/AAAAAAAAAAANAP7/AAAAAAAAAAAFAPz/AAAAAAAAAAAGAPz/AAAAAAAAAAAHAPz/AAAAAAAAAAAIAPz/AAAAAAAAAAALAPz/AAAAAAAAAAAMAPz/AAAAAAAAAAANAP//AAAAAAAAAAADAAMAAAAAAAAAAAACAAMAAAAAAAAAAAACAAIAAAAAAAAAAAACAAEAAAAAAAAAAAACAAAAAAAAAAAAAAACAP//AAAAAAAAAAACAP7/AAAAAAAAAAADAAQAAAAAAAAAAAAEAAUAAAAAAAAAAAAFAAYAAAAAAAAAAAAGAAYAAAAAAAAAAAAHAAYAAAAAAAAAAAAHAAcAAAAAAAAAAAAIAAcAAAAAAAAAAAAJAAcAAAAAAAAAAAAKAAcAAAAAAAAAAAALAAcAAAAAAAAAAAAMAAcAAAAAAAAAAAAIAAYAAAAAAAAAAAAJAAYAAAAAAAAAAAAKAAYAAAAAAAAAAAALAAYAAAAAAAAAAAAMAAYAAAAAAAAAAAAGAAcAAAAAAAAAAAANAAAAAAAAAAAAAAANAAEAAAAAAAAAAAANAAIAAAAAAAAAAAANAAMAAAAAAAAAAAANAAQAAAAAAAAAAAANAAUAAAAAAAAAAAANAAYAAAAAAAAAAAANAAcAAAAAAAAAAAA=")
 tile_set = SubResource("TileSet_hqfqh")
 
-[node name="Player" parent="." unique_id=2139512567 instance=ExtResource("1_w44h4")]
+[node name="Player" type="CharacterBody2D" parent="." unique_id=2139512567 instance=ExtResource("1_w44h4")]
 position = Vector2(-1, 5)
+script = ExtResource("4_5l30k")
 
-[node name="FurnitureRoot" parent="." unique_id=719879576 instance=ExtResource("2_hqfqh")]
+[node name="FurnitureRoot" type="Node2D" parent="." unique_id=719879576 instance=ExtResource("2_hqfqh")]
 
-[node name="SaveManager" parent="." instance=ExtResource("3_mq7qq")]
+[node name="SaveManager" type="Node" parent="." unique_id=1371666770 instance=ExtResource("3_mq7qq")]
+script = ExtResource("7_pwfh8")
 
-[node name="OccupancyManager" parent="." instance=ExtResource("4_5bor")]
+[node name="OccupancyManager" type="Node" parent="." unique_id=572808407 instance=ExtResource("4_5bor")]
+script = ExtResource("9_ceq8q")
 
-[node name="NavigationManager" parent="." instance=ExtResource("5_7cnw")]
+[node name="NavigationManager" type="Node" parent="." unique_id=1128673834 instance=ExtResource("5_7cnw")]
+script = ExtResource("11_xvq40")
 
-[node name="SelectionManager" parent="." instance=ExtResource("6_f1c4")]
+[node name="SelectionManager" type="Node" parent="." unique_id=296176082 instance=ExtResource("6_f1c4")]
+script = ExtResource("13_7frqr")
 
-[node name="DecorationController" parent="." instance=ExtResource("7_o2vr")]
+[node name="DecorationController" type="Node" parent="." unique_id=1426821947 instance=ExtResource("7_o2vr")]
+script = ExtResource("15_2jpxh")
 
 [node name="GridDebug" type="Sprite2D" parent="." unique_id=513186313]
 texture = ExtResource("5_h30v7")
@@ -68,9 +81,15 @@ texture = ExtResource("6_sarsd")
 
 [node name="PreviewCells" type="Node2D" parent="FurniturePreview" unique_id=478443086]
 
+[node name="NameLabel" type="Label" parent="FurniturePreview" unique_id=457142953]
+offset_top = -32.0
+theme_override_font_sizes/font_size = 14
+horizontal_alignment = 1
+
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=1819679013]
 navigation_polygon = SubResource("NavigationPolygon_sarsd")
 
 [node name="NavigationBlockers" type="Node2D" parent="." unique_id=1940373574]
 
-[node name="InventoryUI" parent="." unique_id=614879984 instance=ExtResource("7_3gx7t")]
+[node name="InventoryUI" type="CanvasLayer" parent="." unique_id=614879984 instance=ExtResource("7_3gx7t")]
+script = ExtResource("19_f1140")

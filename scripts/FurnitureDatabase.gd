@@ -148,3 +148,24 @@ static func get_texture_for_rotation(item_id: String, rotation_data: int) -> Tex
 		return null
 
 	return load(path)
+
+
+static func get_categories() -> Array[String]:
+	var cats: Array[String] = []
+
+	for item_id: String in ITEMS.keys():
+		var cat: String = str(ITEMS[item_id].get("category", "furniture"))
+		if not cat in cats:
+			cats.append(cat)
+
+	return cats
+
+
+static func get_items_by_category(category: String) -> Array[String]:
+	var items: Array[String] = []
+
+	for item_id: String in ITEMS.keys():
+		if str(ITEMS[item_id].get("category", "furniture")) == category:
+			items.append(item_id)
+
+	return items

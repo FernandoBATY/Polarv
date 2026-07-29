@@ -1,6 +1,7 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+*.uid
 
 # opencode skills (local config, not committed)
 .opencode/skills/
