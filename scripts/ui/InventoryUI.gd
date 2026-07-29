@@ -1,21 +1,20 @@
 extends CanvasLayer
 
 signal furniture_selected(furniture_id: String)
+signal inventory_button_pressed
 
 const FurnitureDatabase = preload("res://scripts/FurnitureDatabase.gd")
 const FURNITURE_SLOT_SCENE: PackedScene = preload("res://scenes/ui/FurnitureSlot.tscn")
 
-@onready var open_button: Button = $OpenButton
-@onready var panel: Panel = $Panel
-@onready var grid_container: GridContainer = $Panel/MarginContainer/ScrollContainer/GridContainer
+@onready var inventory_button: Button = $InventoryButton
+@onready var window_base: WindowBase = $WindowBase
+@onready var grid_container: GridContainer = $WindowBase/WindowMargin/VBoxContainer/ContentContainer/ScrollContainer/GridContainer
 
 
 func _ready() -> void:
-	panel.visible = false
+	window_base.window_closed.connect(_on_window_closed)
+	inventory_button.pressed.connect(_on_inventory_button_pressed)
 	build_inventory()
-
-	if not open_button.pressed.is_connected(toggle):
-		open_button.pressed.connect(toggle)
 
 
 func build_inventory() -> void:
@@ -24,27 +23,42 @@ func build_inventory() -> void:
 
 	for item_id: String in FurnitureDatabase.ITEMS.keys():
 		var item_data: Dictionary = FurnitureDatabase.get_item(item_id)
-
 		var slot := FURNITURE_SLOT_SCENE.instantiate()
 		grid_container.add_child(slot)
-
 		slot.setup(item_id, item_data)
 		slot.furniture_selected.connect(_on_slot_furniture_selected)
 
 
+func _on_inventory_button_pressed() -> void:
+	inventory_button_pressed.emit()
+	if window_base.visible:
+		close()
+	else:
+		open()
+
+
 func open() -> void:
-	panel.visible = true
-	print("INVENTORY OPEN")
+	window_base.open("Inventario")
+	inventory_button.visible = false
 
 
 func close() -> void:
-	panel.visible = false
-	print("INVENTORY CLOSED")
+	window_base.close()
 
 
 func toggle() -> void:
-	panel.visible = not panel.visible
-	print("INVENTORY TOGGLE: ", panel.visible)
+	if window_base.visible:
+		close()
+	else:
+		open()
+
+
+func is_open() -> bool:
+	return window_base.visible
+
+
+func _on_window_closed() -> void:
+	inventory_button.visible = true
 
 
 func _on_slot_furniture_selected(furniture_id: String) -> void:

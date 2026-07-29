@@ -52,6 +52,9 @@ func _ready() -> void:
 	if inventory_ui and inventory_ui.has_signal("furniture_selected"):
 		inventory_ui.furniture_selected.connect(_on_inventory_furniture_selected)
 
+	if inventory_ui and inventory_ui.has_signal("inventory_button_pressed"):
+		inventory_ui.inventory_button_pressed.connect(_on_inventory_button_pressed)
+
 	load_decorations_from_file()
 	select_furniture(current_furniture_id)
 	set_decoration_mode(decoration_mode)
@@ -250,12 +253,20 @@ func _unhandled_input(event: InputEvent) -> void:
 				print("CLICK BLOQUEADO POR UI")
 				return
 
+			if inventory_ui and inventory_ui.has_method("is_open") and inventory_ui.is_open():
+				print("CLICK BLOQUEADO POR INVENTARIO ABIERTO")
+				return
+
 			handle_decoration_click()
 
 
 func _on_inventory_furniture_selected(furniture_id: String) -> void:
 	block_next_decoration_click = true
 	select_furniture(furniture_id)
+
+
+func _on_inventory_button_pressed() -> void:
+	block_next_decoration_click = true
 
 
 func handle_decoration_click() -> void:

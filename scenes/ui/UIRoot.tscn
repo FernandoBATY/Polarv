@@ -1,3 +1,6 @@
-[gd_scene format=3 uid="uid://bsx7gtjf62be5"]
+[gd_scene format=4 uid="uid://bsx7gtjf62be5"]
 
-[node name="UiRoot_tscn" type="Node2D" unique_id=1985074492]
+[ext_resource type="Script" uid="uid://ce5cibjjknd2y" path="res://scripts/ui/UIRoot.gd" id="1_jxh70"]
+
+[node name="UIRoot" type="Node"]
+script = ExtResource("1_jxh70")

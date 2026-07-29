@@ -23,13 +23,25 @@ func set_movement_enabled(value: bool) -> void:
 		navigation_agent.target_position = global_position
 
 
-func _input(event: InputEvent) -> void:
+func _unhandled_input(event: InputEvent) -> void:
 	if not can_move_by_click:
 		return
 
 	if event is InputEventMouseButton:
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			if _is_click_over_ui():
+				return
 			move_to_mouse()
+
+
+func _is_click_over_ui() -> bool:
+	var parent_node = get_parent()
+	if parent_node and parent_node.has_node("InventoryUI/InventoryButton"):
+		var button = parent_node.get_node("InventoryUI/InventoryButton") as Button
+		if button and button.visible:
+			var mouse_pos = get_viewport().get_mouse_position()
+			return button.get_global_rect().has_point(mouse_pos)
+	return false
 
 
 func move_to_mouse() -> void:
