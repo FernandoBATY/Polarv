@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/world/DecorationController.gd" id="1_bqqs3"]
+
+[node name="DecorationController" type="Node"]
+script = ExtResource("1_bqqs3")

@@ -1,8 +1,13 @@
 [gd_scene format=4 uid="uid://eqo1pldtlih5"]
 
-[ext_resource type="Script" uid="uid://dxptn01pihrht" path="res://scripts/world/Game.gd" id="1_3iwug"]
-[ext_resource type="PackedScene" uid="uid://cke8ty7gp63tf" path="res://scenes/player/player.tscn" id="1_w44h4"]
-[ext_resource type="PackedScene" uid="uid://cptpai1oh5umm" path="res://scenes/furniture/furniture_root.tscn" id="2_hqfqh"]
+[ext_resource type="Script" path="res://scripts/world/Game.gd" id="1_3iwug"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_w44h4"]
+[ext_resource type="PackedScene" path="res://scenes/furniture/furniture_root.tscn" id="2_hqfqh"]
+[ext_resource type="PackedScene" path="res://scenes/world/SaveManager.tscn" id="3_mq7qq"]
+[ext_resource type="PackedScene" path="res://scenes/world/OccupancyManager.tscn" id="4_5bor"]
+[ext_resource type="PackedScene" path="res://scenes/world/NavigationManager.tscn" id="5_7cnw"]
+[ext_resource type="PackedScene" path="res://scenes/world/SelectionManager.tscn" id="6_f1c4"]
+[ext_resource type="PackedScene" path="res://scenes/world/DecorationController.tscn" id="7_o2vr"]
 [ext_resource type="Texture2D" uid="uid://dg7mhpr8oh7cg" path="res://assets/tiles/grass.png" id="2_r5nxa"]
 [ext_resource type="Texture2D" uid="uid://ov4l6orujhms" path="res://assets/pasto.png" id="5_h30v7"]
 [ext_resource type="Texture2D" uid="uid://c64g1pr5t1746" path="res://assets/chair_placeholder.png" id="6_sarsd"]
@@ -38,6 +43,16 @@ tile_set = SubResource("TileSet_hqfqh")
 position = Vector2(-1, 5)
 
 [node name="FurnitureRoot" parent="." unique_id=719879576 instance=ExtResource("2_hqfqh")]
+
+[node name="SaveManager" parent="." instance=ExtResource("3_mq7qq")]
+
+[node name="OccupancyManager" parent="." instance=ExtResource("4_5bor")]
+
+[node name="NavigationManager" parent="." instance=ExtResource("5_7cnw")]
+
+[node name="SelectionManager" parent="." instance=ExtResource("6_f1c4")]
+
+[node name="DecorationController" parent="." instance=ExtResource("7_o2vr")]
 
 [node name="GridDebug" type="Sprite2D" parent="." unique_id=513186313]
 texture = ExtResource("5_h30v7")
