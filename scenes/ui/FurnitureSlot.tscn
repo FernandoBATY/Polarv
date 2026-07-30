@@ -3,16 +3,17 @@
 [ext_resource type="Script" uid="uid://bepitqiy2ji2l" path="res://scripts/ui/FurnitureSlot.gd" id="1_t5154"]
 
 [node name="FurnitureSlot" type="Button"]
-custom_minimum_size = Vector2(90, 130)
+custom_minimum_size = Vector2(100, 140)
 offset_right = 8.0
 offset_bottom = 8.0
+mouse_default_cursor_shape = 2
 script = ExtResource("1_t5154")
 
 [node name="RarityBar" type="ColorRect" parent="."]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 4.0
-offset_right = 86.0
+offset_right = 96.0
 offset_bottom = 8.0
 color = Color(0.6, 0.6, 0.6, 1)
 mouse_filter = 2
@@ -23,11 +24,12 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+offset_top = 12.0
 mouse_filter = 2
 
 [node name="Icon" type="TextureRect" parent="VBoxContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(64, 48)
+custom_minimum_size = Vector2(72, 54)
 size_flags_horizontal = 3
 size_flags_vertical = 3
 expand_mode = 1

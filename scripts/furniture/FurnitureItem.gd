@@ -29,6 +29,14 @@ func setup(
 
 	z_index = int(global_position.y)
 
+	_play_place_animation()
+
+
+func _play_place_animation() -> void:
+	scale = Vector2(0.01, 0.01)
+	var tween: Tween = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "scale", Vector2.ONE, 0.2)
+
 
 func apply_visual_direction() -> void:
 	var sprite := $Sprite2D as Sprite2D
@@ -51,6 +59,11 @@ func apply_visual_direction() -> void:
 
 		270:
 			sprite.flip_h = true
+
+	var rotated_size: Vector2i = grid_size
+	if rotation_degrees_data == 90 or rotation_degrees_data == 270:
+		rotated_size = Vector2i(grid_size.y, grid_size.x)
+	sprite.position = IsoGrid.get_footprint_center(rotated_size)
 
 
 func set_selected(value: bool) -> void:
@@ -86,3 +99,9 @@ func to_save_data() -> Dictionary:
 		"size_y": grid_size.y,
 		"rotation": rotation_degrees_data
 	}
+
+
+func play_delete_animation() -> void:
+	var tween: Tween = create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	tween.tween_property(self, "scale", Vector2(0.01, 0.01), 0.15)
+	tween.tween_callback(queue_free)

@@ -21,3 +21,9 @@ static func world_to_grid(world_position: Vector2) -> Vector2i:
 	var gy := (world_position.y / HALF_HEIGHT - world_position.x / HALF_WIDTH) / 2.0
 
 	return Vector2i(roundi(gx), roundi(gy))
+
+static func get_footprint_center(size: Vector2i) -> Vector2:
+	return Vector2(
+		(size.x - size.y) * 32,
+		(size.x + size.y - 2) * 16
+	)

@@ -18,6 +18,7 @@ var selected_cells_root: Node2D
 @onready var navigation_manager = $NavigationManager
 @onready var selection_manager = $SelectionManager
 @onready var decoration_controller = $DecorationController
+@onready var hud: HUD = $HUD
 
 
 func _ready() -> void:
@@ -82,6 +83,8 @@ func set_decoration_mode(value: bool) -> void:
 			inventory_ui.close()
 
 	print("DECORATION MODE: ", decoration_mode)
+	if hud:
+		hud.set_deco_mode(decoration_mode)
 
 
 func update_grid_debug() -> void:
@@ -200,14 +203,22 @@ func delete_selected_furniture() -> void:
 		print("NO HAY MUEBLE SELECCIONADO")
 		return
 
+	var furniture = selection_manager.selected_furniture
+
 	if selection_manager.is_moving:
 		selection_manager.is_moving = false
 	else:
-		occupancy_manager.free_furniture_cells(selection_manager.selected_furniture)
+		occupancy_manager.free_furniture_cells(furniture)
 
-	print("MUEBLE BORRADO: ", selection_manager.selected_furniture.item_id)
-	selection_manager.selected_furniture.queue_free()
 	selection_manager.selected_furniture = null
 	decoration_controller.clear_selected_cells()
+
+	print("MUEBLE BORRADO: ", furniture.item_id)
+
+	if furniture.has_method("play_delete_animation"):
+		furniture.play_delete_animation()
+	else:
+		furniture.queue_free()
+
 	navigation_manager.rebuild_blockers(furniture_root)
 	save_manager.save_decorations(save_manager.collect_save_data(furniture_root))

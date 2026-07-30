@@ -46,7 +46,6 @@ func setup(f_root: Node2D, f_preview: Node2D, p_cells: Node2D, g_debug: Sprite2D
 	preview_shadow.z_index = -10
 	preview_shadow.modulate = Color(0, 0, 0, 0.2)
 	furniture_preview.add_child(preview_shadow)
-	preview_shadow.position = Vector2(4, -2)
 
 
 func select_furniture(furniture_id: String) -> void:
@@ -88,9 +87,11 @@ func update_preview() -> void:
 	if not is_rotating:
 		preview_sprite.texture = FurnitureDatabase.get_texture_for_rotation(preview_id, preview_rotation)
 		preview_sprite.flip_h = preview_rotation == 180 or preview_rotation == 270
+		preview_sprite.position = IsoGrid.get_footprint_center(rotated_size)
 		if preview_shadow:
 			preview_shadow.texture = preview_sprite.texture
 			preview_shadow.flip_h = preview_sprite.flip_h
+			preview_shadow.position = preview_sprite.position + Vector2(4, -2)
 	preview_sprite.modulate = Color(0, 1, 0, 0.5) if preview_valid else Color(1, 0, 0, 0.5)
 
 	var name_label := furniture_preview.get_node_or_null("NameLabel") as Label

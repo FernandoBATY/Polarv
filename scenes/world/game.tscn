@@ -19,6 +19,7 @@
 [ext_resource type="Script" path="res://scripts/world/SelectionManager.gd" id="13_7frqr"]
 [ext_resource type="Script" path="res://scripts/world/DecorationController.gd" id="15_2jpxh"]
 [ext_resource type="Script" path="res://scripts/ui/InventoryUI.gd" id="19_f1140"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HUD.tscn" id="20_ghd8"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_h30v7"]
 texture = ExtResource("2_r5nxa")
@@ -93,3 +94,5 @@ navigation_polygon = SubResource("NavigationPolygon_sarsd")
 
 [node name="InventoryUI" type="CanvasLayer" parent="." unique_id=614879984 instance=ExtResource("7_3gx7t")]
 script = ExtResource("19_f1140")
+
+[node name="HUD" parent="." instance=ExtResource("20_ghd8")]
